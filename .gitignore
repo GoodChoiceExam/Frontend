@@ -1,0 +1,11 @@
+bin/
+obj/
+.env
+.env.*
+docker-compose.override.yml
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.user
+wwwroot/service-worker-assets.json
