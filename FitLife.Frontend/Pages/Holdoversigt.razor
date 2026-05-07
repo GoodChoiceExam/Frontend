@@ -1,0 +1,74 @@
+@page "/holdoversigt"
+@using FitLife.Frontend.Models
+@using FitLife.Frontend.Services
+@inject ClassesService ClassesService
+
+<div class="hold-page">
+    <div class="hold-header">
+        <h1>Holdoversigt</h1>
+        <input class="search-input" type="text" placeholder="Søg efter hold..." @bind="searchQuery" @bind:event="oninput" />
+    </div>
+
+    <div class="filter-bar">
+        <button class="filter-btn @(activeCategory == null ? "active" : "")" @onclick="() => activeCategory = null">Alle</button>
+        @foreach (var cat in categories)
+        {
+            <button class="filter-btn @(activeCategory == cat ? "active" : "")" @onclick="() => activeCategory = cat">@cat</button>
+        }
+    </div>
+
+    @if (isLoading)
+    {
+        <p class="loading">Henter hold...</p>
+    }
+    else if (!FilteredClasses.Any())
+    {
+        <p class="loading">Ingen hold fundet.</p>
+    }
+    else
+    {
+        <div class="class-list">
+            @foreach (var c in FilteredClasses)
+            {
+                <div class="class-card">
+                    <div class="card-image"></div>
+                    <div class="card-content">
+                        <div class="card-top">
+                            <span class="category-badge">@c.Category</span>
+                            <span class="difficulty-badge">@c.DifficultyLevel</span>
+                        </div>
+                        <h2 class="card-title">@c.Title</h2>
+                        <p class="card-description">@c.Description</p>
+                        <div class="card-meta">
+                            <span>🕐 @c.StartTime.ToString("ddd dd. MMM, HH:mm")</span>
+                            <span>📍 @c.Location</span>
+                            <span>👥 @c.AvailableSpots / @c.Capacity pladser</span>
+                        </div>
+                        <button class="book-btn" disabled="@(c.AvailableSpots <= 0)">
+                            @(c.AvailableSpots > 0 ? "Book hold" : "Fuldt booket")
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private List<TrainingClass> allClasses = [];
+    private bool isLoading = true;
+    private string? searchQuery;
+    private string? activeCategory;
+
+    private readonly List<string> categories = ["Yoga", "HIIT", "Strength", "Mobility"];
+
+    private IEnumerable<TrainingClass> FilteredClasses => allClasses
+        .Where(c => activeCategory == null || c.Category == activeCategory)
+        .Where(c => string.IsNullOrWhiteSpace(searchQuery) || c.Title.Contains(searchQuery, StringComparison.OrdinalIgnoreCase));
+
+    protected override async Task OnInitializedAsync()
+    {
+        allClasses = await ClassesService.GetAllAsync();
+        isLoading = false;
+    }
+}

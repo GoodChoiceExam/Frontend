@@ -1,0 +1,52 @@
+@page "/login"
+@using FitLife.Frontend.Services
+@inject AuthService Auth
+@inject NavigationManager Nav
+
+<h1>Log ind</h1>
+
+@if (!string.IsNullOrEmpty(_error))
+{
+    <p style="color:red">@_error</p>
+}
+
+<EditForm Model="_model" OnValidSubmit="HandleLogin">
+    <DataAnnotationsValidator />
+    <div>
+        <label>Email</label>
+        <InputText @bind-Value="_model.Email" />
+    </div>
+    <div>
+        <label>Password</label>
+        <InputText @bind-Value="_model.Password" type="password" />
+    </div>
+    <button type="submit" disabled="@_loading">
+        @(_loading ? "Logger ind..." : "Log ind")
+    </button>
+</EditForm>
+
+@code {
+    private readonly LoginModel _model = new();
+    private string? _error;
+    private bool _loading;
+
+    private async Task HandleLogin()
+    {
+        _loading = true;
+        _error = null;
+
+        var success = await Auth.LoginAsync(_model.Email, _model.Password);
+        if (success)
+            Nav.NavigateTo("/");
+        else
+            _error = "Forkert email eller password";
+
+        _loading = false;
+    }
+
+    private class LoginModel
+    {
+        public string Email { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+    }
+}
