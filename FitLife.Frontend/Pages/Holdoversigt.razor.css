@@ -1,0 +1,146 @@
+.hold-page {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+    background-color: #F7F5F0;
+    min-height: 100vh;
+    font-family: sans-serif;
+}
+
+.hold-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.hold-header h1 {
+    font-size: 2rem;
+    color: #1F5C45;
+    margin: 0;
+}
+
+.search-input {
+    padding: 0.5rem 1rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    width: 220px;
+    background: #fff;
+}
+
+.filter-bar {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    padding: 0.4rem 1rem;
+    border: 1px solid #1F5C45;
+    border-radius: 20px;
+    background: transparent;
+    color: #1F5C45;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background 0.2s, color 0.2s;
+}
+
+.filter-btn.active,
+.filter-btn:hover {
+    background: #1F5C45;
+    color: #fff;
+}
+
+.loading {
+    text-align: center;
+    color: #666;
+    margin-top: 2rem;
+}
+
+.class-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.class-card {
+    display: flex;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+}
+
+.card-image {
+    width: 180px;
+    min-height: 160px;
+    background: #1F5C45;
+    flex-shrink: 0;
+}
+
+.card-content {
+    padding: 1.2rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex: 1;
+}
+
+.card-top {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.category-badge,
+.difficulty-badge {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+    background: #E8F0EC;
+    color: #1F5C45;
+    font-weight: 600;
+}
+
+.card-title {
+    font-size: 1.2rem;
+    color: #1a1a1a;
+    margin: 0;
+}
+
+.card-description {
+    font-size: 0.9rem;
+    color: #555;
+    margin: 0;
+}
+
+.card-meta {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.85rem;
+    color: #444;
+    flex-wrap: wrap;
+}
+
+.book-btn {
+    margin-top: auto;
+    align-self: flex-start;
+    padding: 0.5rem 1.4rem;
+    background: #1F5C45;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background 0.2s;
+}
+
+.book-btn:hover:not(:disabled) {
+    background: #174d38;
+}
+
+.book-btn:disabled {
+    background: #aaa;
+    cursor: not-allowed;
+}
