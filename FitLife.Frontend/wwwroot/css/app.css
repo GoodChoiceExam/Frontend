@@ -113,3 +113,30 @@ code {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
     text-align: start;
 }
+
+.nav-link-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    text-decoration: none !important;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #2B2B28 !important;
+    transition: background 0.2s, color 0.2s;
+}
+
+.nav-link-item:hover {
+    background: #DCE9DF;
+    color: #2B2B28 !important;
+}
+
+.nav-link-item.active {
+    background: #1F5C45 !important;
+    color: white !important;
+}
+
+.nav-link-item i {
+    font-size: 1rem;
+}
