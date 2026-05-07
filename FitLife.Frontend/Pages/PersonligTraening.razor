@@ -1,0 +1,86 @@
+@page "/personlig-traening"
+@using FitLife.Frontend.Models
+@using FitLife.Frontend.Services
+@inject TrainerService TrainerService
+
+<div class="pt-page">
+    <div class="pt-hero">
+        <div class="pt-hero-content">
+            <h1>Personlig træning</h1>
+            <p class="pt-subtitle">Få professionel vejledning til at nå dine mål</p>
+        </div>
+    </div>
+
+    <div class="pt-banner">
+        <div class="pt-banner-inner">
+            <div class="pt-banner-text">
+                <h2>Opnå dine mål hurtigere</h2>
+                <p>Personlig træning giver dig den vejledning og motivation, du har brug for. Arbejd med eksperter der forstår din rejse.</p>
+                <div class="pt-benefits">
+                    <div class="pt-benefits-col">
+                        <div class="pt-benefit">• Skræddersyet træningsplan til dine mål</div>
+                        <div class="pt-benefit">• Fleksible tider der passer dig</div>
+                        <div class="pt-benefit">• Kostplan og livsstilsrådgivning</div>
+                    </div>
+                    <div class="pt-benefits-col">
+                        <div class="pt-benefit">• En-til-en vejledning og feedback</div>
+                        <div class="pt-benefit">• Motivation og ansvarlighed</div>
+                        <div class="pt-benefit">• Tilgængelig på alle FitLife centre</div>
+                    </div>
+                </div>
+            </div>
+            <div class="pt-banner-image"></div>
+        </div>
+    </div>
+
+    <div class="pt-trainers-section">
+        <h2>Mød vores trænere</h2>
+
+        @if (isLoading)
+        {
+            <p class="pt-loading">Henter trænere...</p>
+        }
+        else if (!trainers.Any())
+        {
+            <p class="pt-loading">Ingen trænere fundet.</p>
+        }
+        else
+        {
+            <div class="pt-trainer-grid">
+                @foreach (var trainer in trainers)
+                {
+                    <div class="pt-trainer-card">
+                        <div class="pt-trainer-image">
+                            <div class="pt-rating">⭐ @trainer.Rating</div>
+                        </div>
+                        <div class="pt-trainer-body">
+                            <h3>@trainer.Name</h3>
+                            <div class="pt-specialties">
+                                @foreach (var specialty in trainer.Specialties)
+                                {
+                                    <span class="pt-specialty-badge">@specialty</span>
+                                }
+                            </div>
+                            <div class="pt-trainer-meta">
+                                <span>🏅 @trainer.ExperienceYears år erfaring</span>
+                                <span>🕐 @trainer.Sessions+ sessions</span>
+                            </div>
+                            <button class="pt-book-btn">Book session</button>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private List<PersonalTrainer> trainers = [];
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        trainers = await TrainerService.GetAllAsync();
+        isLoading = false;
+    }
+}
