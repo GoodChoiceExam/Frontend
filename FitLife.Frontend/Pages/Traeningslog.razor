@@ -1,0 +1,172 @@
+@page "/traeningslog"
+@using FitLife.Frontend.Models
+@using FitLife.Frontend.Services
+@inject TrainingLogService TrainingLogService
+
+<div class="tl-page">
+    <div class="tl-header">
+        <h1>Træningslog</h1>
+        <p class="tl-subtitle">Opret programmer og log din træning ét sted</p>
+    </div>
+
+    @if (activeView == "overview")
+    {
+        <div class="tl-section">
+            <div class="tl-section-header">
+                <h2>Mine træningsprogrammer</h2>
+                <button class="tl-create-btn" @onclick='() => activeView = "create"'>+ Opret nyt program</button>
+            </div>
+
+            @if (isLoading)
+            {
+                <p class="tl-loading">Henter programmer...</p>
+            }
+            else if (!programs.Any())
+            {
+                <p class="tl-loading">Du har ingen programmer endnu.</p>
+            }
+            else
+            {
+                <div class="tl-program-grid">
+                    @foreach (var program in programs)
+                    {
+                        <div class="tl-program-card" @onclick="() => SelectProgram(program)">
+                            <div class="tl-program-icon">💪</div>
+                            <div class="tl-program-info">
+                                <h3>@program.Name</h3>
+                                <p>@program.ExerciseCount øvelser</p>
+                            </div>
+                            <span class="tl-chevron">›</span>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    }
+
+    @if (activeView == "create")
+    {
+        <div class="tl-card">
+            <h2>Nyt træningsprogram</h2>
+
+            <div class="tl-form-group">
+                <label>Programnavn</label>
+                <input type="text" @bind="newProgramName" placeholder="F.eks. Min push dag" class="tl-input" />
+            </div>
+
+            <div class="tl-exercise-section">
+                <div class="tl-exercise-header">
+                    <h3>Øvelser</h3>
+                    <button class="tl-add-exercise-btn" @onclick="AddExercise">+ Tilføj øvelse</button>
+                </div>
+
+                @if (newExercises.Any())
+                {
+                    <div class="tl-exercise-table-header">
+                        <span>Øvelse</span><span>Sæt</span><span>Reps</span><span>Kg</span><span></span>
+                    </div>
+                    @foreach (var ex in newExercises)
+                    {
+                        <div class="tl-exercise-row">
+                            <input type="text" @bind="ex.Name" placeholder="Øvelsens navn" class="tl-input" />
+                            <input type="number" @bind="ex.Sets" class="tl-input tl-input-sm" />
+                            <input type="number" @bind="ex.Reps" class="tl-input tl-input-sm" />
+                            <input type="number" @bind="ex.WeightKg" class="tl-input tl-input-sm" />
+                            <button class="tl-remove-btn" @onclick="() => newExercises.Remove(ex)">✕</button>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p class="tl-loading">Ingen øvelser tilføjet endnu.</p>
+                }
+            </div>
+
+            <div class="tl-actions">
+                <button class="tl-secondary-btn" @onclick='() => activeView = "overview"'>Annuller</button>
+                <button class="tl-primary-btn" @onclick="SaveProgram" disabled="@(string.IsNullOrWhiteSpace(newProgramName))">Gem program</button>
+            </div>
+        </div>
+    }
+
+    @if (activeView == "log" && selectedProgram is not null)
+    {
+        <div class="tl-card">
+            <div class="tl-log-header">
+                <div>
+                    <h2>@selectedProgram.Name</h2>
+                    <p class="tl-subtitle">Log din træning</p>
+                </div>
+                <button class="tl-secondary-btn" @onclick='() => activeView = "overview"'>Tilbage til oversigt</button>
+            </div>
+
+            @if (selectedProgram.Exercises.Any())
+            {
+                <div class="tl-exercise-table-header">
+                    <span>Øvelse</span><span>Sæt</span><span>Reps</span><span>Kg</span>
+                </div>
+                @foreach (var ex in selectedProgram.Exercises)
+                {
+                    <div class="tl-exercise-log-row">
+                        <span class="tl-exercise-name">@ex.Name</span>
+                        <span>@ex.Sets</span>
+                        <span>@ex.Reps</span>
+                        <span>@(ex.WeightKg?.ToString() ?? "—")</span>
+                    </div>
+                }
+            }
+            else
+            {
+                <p class="tl-loading">Ingen øvelser i dette program.</p>
+            }
+
+            <div class="tl-actions">
+                <button class="tl-primary-btn" @onclick='() => activeView = "overview"'>Gem træningslog</button>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private string activeView = "overview";
+    private List<WorkoutProgram> programs = [];
+    private WorkoutProgram? selectedProgram;
+    private bool isLoading = true;
+
+    private string newProgramName = string.Empty;
+    private List<Exercise> newExercises = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        programs = await TrainingLogService.GetProgramsAsync();
+        isLoading = false;
+    }
+
+    private void SelectProgram(WorkoutProgram program)
+    {
+        selectedProgram = program;
+        activeView = "log";
+    }
+
+    private void AddExercise()
+    {
+        newExercises.Add(new Exercise { Sets = 3, Reps = 10 });
+    }
+
+    private async Task SaveProgram()
+    {
+        if (string.IsNullOrWhiteSpace(newProgramName)) return;
+
+        var program = await TrainingLogService.CreateProgramAsync(newProgramName);
+        if (program is not null)
+        {
+            foreach (var ex in newExercises.Where(e => !string.IsNullOrWhiteSpace(e.Name)))
+                await TrainingLogService.AddExerciseAsync(program.Id, ex.Name, ex.Sets, ex.Reps, ex.WeightKg);
+
+            programs = await TrainingLogService.GetProgramsAsync();
+            newProgramName = string.Empty;
+            newExercises = [];
+            activeView = "overview";
+        }
+    }
+}

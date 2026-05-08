@@ -1,34 +1,33 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">FitLife</a>
-        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+﻿@using Microsoft.AspNetCore.Components.Routing
+
+<nav class="top-nav">
+    <div class="nav-inner">
+        <a href="/" class="nav-brand">
+            <div class="nav-logo">FL</div>
+            <span class="nav-brand-text">FitLife Digital</span>
+        </a>
+
+        <div class="nav-links">
+            <NavLink class="nav-link-item" href="" Match="NavLinkMatch.All">
+                <i class="bi bi-house-door"></i> Dashboard
+            </NavLink>
+            <NavLink class="nav-link-item" href="holdoversigt">
+                <i class="bi bi-calendar2-week"></i> Hold
+            </NavLink>
+            <NavLink class="nav-link-item" href="livestream">
+                <i class="bi bi-camera-video"></i> Livestream
+            </NavLink>
+            <NavLink class="nav-link-item" href="community">
+                <i class="bi bi-people"></i> Community
+            </NavLink>
+            <NavLink class="nav-link-item" href="traeningslog">
+                <i class="bi bi-clipboard-check"></i> Træningslog
+            </NavLink>
+            <NavLink class="nav-link-item" href="personlig-traening">
+                <i class="bi bi-person-arms-up"></i> Personlig træning
+            </NavLink>
+        </div>
+
+        <div class="nav-avatar">SN</div>
     </div>
-</div>
-
-<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
-    <nav class="nav flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="holdoversigt">
-                <span class="bi bi-calendar2-week-fill-nav-menu" aria-hidden="true"></span> Holdoversigt
-            </NavLink>
-        </div>
-    </nav>
-</div>
-
-@code {
-    private bool collapseNavMenu = true;
-
-    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
-
-    private void ToggleNavMenu()
-    {
-        collapseNavMenu = !collapseNavMenu;
-    }
-}
+</nav>

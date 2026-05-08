@@ -1,0 +1,176 @@
+.pt-page {
+    background-color: #F7F5F0;
+    min-height: 100vh;
+    font-family: sans-serif;
+}
+
+.pt-hero {
+    padding: 3rem 2rem 1rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.pt-hero h1 {
+    font-size: 2.5rem;
+    color: #2B2B28;
+    margin: 0;
+}
+
+.pt-subtitle {
+    font-size: 1.1rem;
+    color: #2B2B28;
+    opacity: 0.6;
+    margin-top: 0.5rem;
+}
+
+.pt-banner {
+    max-width: 1200px;
+    margin: 1.5rem auto;
+    padding: 0 2rem;
+}
+
+.pt-banner-inner {
+    background: linear-gradient(135deg, #1F5C45, #164433);
+    border-radius: 16px;
+    padding: 3rem;
+    display: flex;
+    gap: 3rem;
+    align-items: center;
+    color: white;
+}
+
+.pt-banner-text {
+    flex: 1;
+}
+
+.pt-banner-text h2 {
+    font-size: 2rem;
+    margin: 0 0 1rem;
+}
+
+.pt-banner-text p {
+    font-size: 1rem;
+    opacity: 0.9;
+    margin-bottom: 1.5rem;
+}
+
+.pt-benefits {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+}
+
+.pt-benefit {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+.pt-banner-image {
+    width: 380px;
+    height: 280px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 12px;
+    flex-shrink: 0;
+}
+
+.pt-trainers-section {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 2rem 3rem;
+}
+
+.pt-trainers-section h2 {
+    font-size: 1.6rem;
+    color: #2B2B28;
+    margin-bottom: 1.5rem;
+}
+
+.pt-loading {
+    text-align: center;
+    color: #666;
+    margin-top: 2rem;
+}
+
+.pt-trainer-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+}
+
+.pt-trainer-card {
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+}
+
+.pt-trainer-image {
+    height: 200px;
+    background: #1F5C45;
+    position: relative;
+}
+
+.pt-rating {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: white;
+    border-radius: 20px;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #2B2B28;
+}
+
+.pt-trainer-body {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.pt-trainer-body h3 {
+    font-size: 1.4rem;
+    color: #2B2B28;
+    margin: 0;
+}
+
+.pt-specialties {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.pt-specialty-badge {
+    background: #DCE9DF;
+    color: #1F5C45;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+.pt-trainer-meta {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.85rem;
+    color: #2B2B28;
+    opacity: 0.7;
+}
+
+.pt-book-btn {
+    margin-top: 0.5rem;
+    width: 100%;
+    padding: 0.75rem;
+    background: #1F5C45;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.pt-book-btn:hover {
+    background: #174d38;
+}

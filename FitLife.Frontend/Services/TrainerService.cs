@@ -4,7 +4,7 @@ using FitLife.Frontend.Models;
 
 namespace FitLife.Frontend.Services;
 
-public class ClassesService(HttpClient http, AuthService authService)
+public class TrainerService(HttpClient http, AuthService authService)
 {
     private async Task SetAuthHeader()
     {
@@ -13,9 +13,9 @@ public class ClassesService(HttpClient http, AuthService authService)
             http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
     }
 
-    public async Task<List<TrainingClass>> GetAllAsync()
+    public async Task<List<PersonalTrainer>> GetAllAsync()
     {
         await SetAuthHeader();
-        return await http.GetFromJsonAsync<List<TrainingClass>>("api/classes") ?? [];
+        return await http.GetFromJsonAsync<List<PersonalTrainer>>("api/trainers") ?? [];
     }
 }
