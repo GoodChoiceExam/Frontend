@@ -10,5 +10,6 @@ RUN dotnet publish FitLife.Frontend/FitLife.Frontend.csproj -c Release -o /app/p
 
 FROM nginx:alpine AS runtime
 COPY --from=build /app/publish/wwwroot /usr/share/nginx/html
+COPY FitLife.Frontend/nginx.conf /etc/nginx/nginx.conf
 
 EXPOSE 80
