@@ -1,0 +1,143 @@
+.livestream-page {
+    padding: 2rem;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.page-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #2B2B28;
+    margin-bottom: 1.5rem;
+}
+
+.section-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #2B2B28;
+    margin: 2rem 0 1rem;
+}
+
+/* Live banner */
+.live-banner {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    background: #1F5C45;
+    color: white;
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.live-banner h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 0.25rem;
+}
+
+.live-banner p {
+    margin: 0;
+    font-size: 0.9rem;
+    opacity: 0.85;
+}
+
+.live-info {
+    flex: 1;
+}
+
+.live-badge {
+    background: #e63946;
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+}
+
+.join-btn {
+    background: white;
+    color: #1F5C45;
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: opacity 0.2s;
+}
+
+.join-btn:hover {
+    opacity: 0.85;
+}
+
+/* Stream grid */
+.stream-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+}
+
+.stream-card {
+    background: white;
+    border: 1px solid #E5E7EB;
+    border-radius: 12px;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.stream-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.25rem;
+}
+
+.stream-category {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #1F5C45;
+    background: #DCE9DF;
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+}
+
+.stream-card h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #2B2B28;
+    margin: 0;
+}
+
+.stream-meta {
+    font-size: 0.85rem;
+    color: #6B7280;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.stream-join-btn {
+    margin-top: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: #1F5C45;
+    color: white;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    text-decoration: none;
+    width: fit-content;
+    transition: opacity 0.2s;
+}
+
+.stream-join-btn:hover {
+    opacity: 0.85;
+}

@@ -11,6 +11,7 @@ var identityUrl = builder.Configuration["IdentityBaseUrl"] ?? "http://localhost:
 var classesUrl = builder.Configuration["ClassesBaseUrl"] ?? "http://localhost:5245/";
 var trainerUrl = builder.Configuration["TrainerBaseUrl"] ?? "http://localhost:5120/";
 var trainingLogUrl = builder.Configuration["TrainingLogBaseUrl"] ?? "http://localhost:5084/";
+var livestreamUrl = builder.Configuration["LivestreamBaseUrl"] ?? "http://localhost:5280/";
 
 builder.Services.AddHttpClient<AuthService>(client =>
     client.BaseAddress = new Uri(identityUrl));
@@ -23,5 +24,8 @@ builder.Services.AddHttpClient<TrainerService>(client =>
 
 builder.Services.AddHttpClient<TrainingLogService>(client =>
     client.BaseAddress = new Uri(trainingLogUrl));
+
+builder.Services.AddHttpClient<LivestreamService>(client =>
+    client.BaseAddress = new Uri(livestreamUrl));
 
 await builder.Build().RunAsync();
