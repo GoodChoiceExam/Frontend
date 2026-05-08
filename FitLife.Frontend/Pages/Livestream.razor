@@ -1,0 +1,76 @@
+@page "/livestream"
+@using FitLife.Frontend.Models
+@using FitLife.Frontend.Services
+@inject LivestreamService LivestreamService
+
+<PageTitle>Livestream – FitLife</PageTitle>
+
+<div class="livestream-page">
+    <h1 class="page-title">Livestream</h1>
+
+    @if (liveNow is not null)
+    {
+        <div class="live-banner">
+            <span class="live-badge">LIVE</span>
+            <div class="live-info">
+                <h2>@liveNow.Title</h2>
+                <p>@liveNow.Instructor · @liveNow.Category · @liveNow.Participants deltagere</p>
+            </div>
+            <a class="join-btn" href="@liveNow.TeamsUrl" target="_blank">
+                <i class="bi bi-camera-video-fill"></i> Deltag nu
+            </a>
+        </div>
+    }
+
+    <h2 class="section-title">Kommende streams</h2>
+
+    @if (sessions is null)
+    {
+        <p>Henter streams...</p>
+    }
+    else if (!sessions.Any())
+    {
+        <p>Ingen planlagte streams.</p>
+    }
+    else
+    {
+        <div class="stream-grid">
+            @foreach (var s in sessions)
+            {
+                <div class="stream-card">
+                    <div class="stream-card-header">
+                        <span class="stream-category">@s.Category</span>
+                        @if (s.IsLive)
+                        {
+                            <span class="live-badge">LIVE</span>
+                        }
+                    </div>
+                    <h3>@s.Title</h3>
+                    <p class="stream-meta">
+                        <i class="bi bi-person"></i> @s.Instructor
+                    </p>
+                    <p class="stream-meta">
+                        <i class="bi bi-clock"></i> @s.StartTime.ToString("dd/MM HH:mm") · @s.DurationMinutes min
+                    </p>
+                    @if (!string.IsNullOrEmpty(s.TeamsUrl))
+                    {
+                        <a class="stream-join-btn" href="@s.TeamsUrl" target="_blank">
+                            <i class="bi bi-camera-video"></i> Åbn Teams
+                        </a>
+                    }
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private List<LivestreamSession>? sessions;
+    private LivestreamSession? liveNow;
+
+    protected override async Task OnInitializedAsync()
+    {
+        liveNow = await LivestreamService.GetLiveNowAsync();
+        sessions = await LivestreamService.GetAllAsync();
+    }
+}
