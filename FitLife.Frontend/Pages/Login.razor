@@ -1,43 +1,29 @@
 @page "/login"
-@layout PublicLayout
 @using FitLife.Frontend.Services
 @inject AuthService Auth
 @inject NavigationManager Nav
 
-<PageTitle>Log ind | FitLife Digital</PageTitle>
+<h1>Log ind</h1>
 
-<main class="login-page">
-    <section class="login-panel" aria-labelledby="login-title">
-        <a class="back-link" href="/home" aria-label="Tilbage til forsiden">← Tilbage</a>
+@if (!string.IsNullOrEmpty(_error))
+{
+    <p style="color:red">@_error</p>
+}
 
-        <h1 id="login-title">Log ind</h1>
-        <p class="login-subtitle">Velkommen tilbage til FitLife Digital</p>
-
-        <div class="login-card">
-            @if (!string.IsNullOrEmpty(_error))
-            {
-                <p class="error-message">@_error</p>
-            }
-
-            <EditForm class="login-form" Model="_model" OnValidSubmit="HandleLogin">
-                <DataAnnotationsValidator />
-                <div class="form-field">
-                    <label for="email">E-mail</label>
-                    <InputText id="email" class="form-input" type="email" placeholder="din@email.dk" @bind-Value="_model.Email" />
-                </div>
-                <div class="form-field">
-                    <label for="password">Adgangskode</label>
-                    <InputText id="password" class="form-input" placeholder="••••••••" @bind-Value="_model.Password" type="password" />
-                </div>
-                <button class="login-button" type="submit" disabled="@_loading">
-                    @(_loading ? "Logger ind..." : "Log ind")
-                </button>
-            </EditForm>
-
-            <p class="signup-text">Har du ikke en konto? <a href="/login">Kom i gang</a></p>
-        </div>
-    </section>
-</main>
+<EditForm Model="_model" OnValidSubmit="HandleLogin">
+    <DataAnnotationsValidator />
+    <div>
+        <label>Email</label>
+        <InputText @bind-Value="_model.Email" />
+    </div>
+    <div>
+        <label>Password</label>
+        <InputText @bind-Value="_model.Password" type="password" />
+    </div>
+    <button type="submit" disabled="@_loading">
+        @(_loading ? "Logger ind..." : "Log ind")
+    </button>
+</EditForm>
 
 @code {
     private readonly LoginModel _model = new();
