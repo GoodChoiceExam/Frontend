@@ -1,0 +1,3 @@
+/* Public layout styling is kept in wwwroot/css/app.css on purpose.
+   The global file is already loaded in production, so the public header
+   does not depend on a newly generated CSS isolation bundle. */
