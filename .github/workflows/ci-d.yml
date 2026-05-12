@@ -11,15 +11,6 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
-      - name: Notify build started
-        run: |
-          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
-            -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
-            -d text="🚀 Frontend build started
-          Repo: ${{ github.repository }}
-          Branch: ${{ github.ref_name }}
-          Actor: ${{ github.actor }}"
-
       - uses: actions/checkout@v4
 
       - name: Setup .NET
@@ -33,25 +24,6 @@ jobs:
       - name: Build
         run: dotnet build FitLife.Frontend.slnx --no-restore
 
-      - name: Notify build succeeded
-        if: success()
-        run: |
-          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
-            -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
-            -d text="✅ Frontend build succeeded
-          Repo: ${{ github.repository }}
-          Branch: ${{ github.ref_name }}"
-
-      - name: Notify build failed
-        if: failure()
-        run: |
-          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
-            -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
-            -d text="❌ Frontend build failed
-          Repo: ${{ github.repository }}
-          Branch: ${{ github.ref_name }}
-          Workflow: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-
   push-image:
     name: Push to DockerHub
     needs: build
@@ -59,14 +31,6 @@ jobs:
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
 
     steps:
-      - name: Notify Docker started
-        run: |
-          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
-            -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
-            -d text="🐳 Docker image build/push started
-          Image: fitlife-frontend
-          Branch: ${{ github.ref_name }}"
-
       - uses: actions/checkout@v4
 
       - name: Log in to DockerHub
@@ -93,32 +57,6 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-      - name: Notify Docker succeeded
-        if: success()
-        run: |
-          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
-            -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
-            -d text="✅ Docker image pushed successfully
-          Image: ${{ secrets.DOCKERHUB_USERNAME }}/fitlife-frontend
-          Branch: ${{ github.ref_name }}"
-
-      - name: Notify Docker failed
-        if: failure()
-        run: |
-          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
-            -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
-            -d text="❌ Docker image push failed
-          Repo: ${{ github.repository }}
-          Workflow: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-
-      - name: Notify infrastructure deploy trigger started
-        run: |
-          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
-            -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
-            -d text="🚀 Triggering Infrastructure deploy workflow
-          Repo: GoodChoiceExam/Infrastructure
-          Ref: master"
-
       - name: Trigger Infrastructure deploy
         run: |
           gh workflow run deploy.yml \
@@ -126,40 +64,3 @@ jobs:
             --ref master
         env:
           GH_TOKEN: ${{ secrets.DEPLOY_PAT }}
-
-      - name: Notify infrastructure deploy trigger succeeded
-        if: success()
-        run: |
-          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
-            -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
-            -d text="✅ Infrastructure deploy workflow triggered
-          Repo: GoodChoiceExam/Infrastructure
-          Ref: master"
-
-      - name: Notify infrastructure deploy trigger failed
-        if: failure()
-        run: |
-          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
-            -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
-            -d text="❌ Failed to trigger Infrastructure deploy
-          Repo: GoodChoiceExam/Infrastructure
-          Workflow: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-
-  notify-telegram:
-    name: Notify Telegram
-    needs: [build, push-image]
-    runs-on: ubuntu-latest
-    if: always()
-
-    steps:
-      - name: Send final Telegram notification
-        run: |
-          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
-            -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
-            -d text="🏁 FitLife Frontend CI/CD finished
-          Build: ${{ needs.build.result }}
-          Docker push/deploy trigger: ${{ needs.push-image.result }}
-          Repo: ${{ github.repository }}
-          Branch: ${{ github.ref_name }}
-          Actor: ${{ github.actor }}
-          Workflow: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
