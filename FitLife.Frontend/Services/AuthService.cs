@@ -44,4 +44,20 @@ public class AuthService
         var token = await GetTokenAsync();
         return !string.IsNullOrEmpty(token);
     }
+    
+    public async Task<string?> GetUserNameAsync()
+    {
+        var token = await GetTokenAsync();
+        if (token is null) return null;
+
+        var parts = token.Split('.');
+        if (parts.Length != 3) return null;
+
+        var payload = parts[1];
+        var padded = payload.PadRight(payload.Length + (4 - payload.Length % 4) % 4, '=');
+        var json = System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(padded));
+        var doc = System.Text.Json.JsonDocument.Parse(json);
+
+        return doc.RootElement.TryGetProperty("name", out var name) ? name.GetString() : null;
+    }
 }
