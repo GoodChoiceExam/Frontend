@@ -1,29 +1,44 @@
 @page "/login"
+@layout PublicLayout
 @using FitLife.Frontend.Services
 @inject AuthService Auth
 @inject NavigationManager Nav
 
-<h1>Log ind</h1>
+<PageTitle>Log ind | FitLife Digital</PageTitle>
 
-@if (!string.IsNullOrEmpty(_error))
-{
-    <p style="color:red">@_error</p>
-}
+<main class="fitlife-login">
+    <section class="fitlife-login-panel" aria-labelledby="login-title">
+        <a class="fitlife-back-link" href="/home">← Tilbage</a>
 
-<EditForm Model="_model" OnValidSubmit="HandleLogin">
-    <DataAnnotationsValidator />
-    <div>
-        <label>Email</label>
-        <InputText @bind-Value="_model.Email" />
-    </div>
-    <div>
-        <label>Password</label>
-        <InputText @bind-Value="_model.Password" type="password" />
-    </div>
-    <button type="submit" disabled="@_loading">
-        @(_loading ? "Logger ind..." : "Log ind")
-    </button>
-</EditForm>
+        <div class="fitlife-login-heading">
+            <h1 id="login-title">Log ind</h1>
+            <p>Velkommen tilbage til FitLife Digital</p>
+        </div>
+
+        <div class="fitlife-login-card">
+            @if (!string.IsNullOrEmpty(_error))
+            {
+                <p class="fitlife-login-error">@_error</p>
+            }
+
+            <EditForm class="fitlife-login-form" Model="_model" OnValidSubmit="HandleLogin">
+                <DataAnnotationsValidator />
+                <div class="fitlife-form-field">
+                    <label for="email">E-mail</label>
+                    <InputText id="email" class="fitlife-form-input" type="email" placeholder="din@email.dk" @bind-Value="_model.Email" />
+                </div>
+                <div class="fitlife-form-field">
+                    <label for="password">Adgangskode</label>
+                    <InputText id="password" class="fitlife-form-input" type="password" placeholder="••••••••" @bind-Value="_model.Password" />
+                </div>
+                <button class="fitlife-login-button" type="submit" disabled="@_loading">
+                    @(_loading ? "Logger ind..." : "Log ind")
+                </button>
+                <p class="fitlife-signup-text">Har du ikke en konto? <a href="/login">Kom i gang</a></p>
+            </EditForm>
+        </div>
+    </section>
+</main>
 
 @code {
     private readonly LoginModel _model = new();
