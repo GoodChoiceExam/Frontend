@@ -1,0 +1,474 @@
+.settings-page {
+    min-height: 100vh;
+    background: #F7F5F0;
+    color: #2B2B28;
+    font-family: "DM Sans", "Helvetica Neue", Arial, sans-serif;
+}
+
+.settings-shell {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 3.75rem 2rem 4rem;
+}
+
+.settings-header {
+    margin-bottom: 2rem;
+}
+
+.settings-header h1 {
+    margin: 0 0 0.75rem;
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-size: 3rem;
+    line-height: 1.08;
+    font-weight: 600;
+    color: #2B2B28;
+}
+
+.settings-header p {
+    margin: 0;
+    font-size: 1.25rem;
+    color: rgba(43, 43, 40, 0.6);
+}
+
+.settings-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+}
+
+.settings-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 0;
+    border-radius: 0.75rem;
+    padding: 0.75rem 1.5rem;
+    background: #ffffff;
+    color: #2B2B28;
+    font-weight: 500;
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+}
+
+.settings-tab i {
+    font-size: 1.15rem;
+}
+
+.settings-tab:hover {
+    background: #DCE9DF;
+}
+
+.settings-tab.active {
+    background: #1F5C45;
+    color: #ffffff;
+    box-shadow: 0 10px 24px rgba(31, 92, 69, 0.2);
+}
+
+.settings-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.settings-card {
+    background: #ffffff;
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: 0 2px 8px rgba(43, 43, 40, 0.07);
+}
+
+.profile-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.profile-avatar {
+    width: 6rem;
+    height: 6rem;
+    border-radius: 999px;
+    background: #A8C5B0;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 1.875rem;
+    font-weight: 600;
+}
+
+.profile-info {
+    flex: 1;
+}
+
+.profile-info h2 {
+    margin: 0 0 0.5rem;
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #2B2B28;
+}
+
+.profile-info p {
+    margin: 0 0 1rem;
+    color: rgba(43, 43, 40, 0.6);
+}
+
+.profile-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.profile-form label {
+    display: block;
+    width: 100%;
+}
+
+.profile-form span {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #2B2B28;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+::deep .settings-input {
+    width: 100%;
+    min-height: 50px;
+    border: 1px solid rgba(43, 43, 40, 0.12);
+    border-radius: 0.75rem;
+    background: #F7F5F0;
+    color: #2B2B28;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    box-sizing: border-box;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+::deep .settings-input:focus {
+    outline: none;
+    border-color: transparent;
+    box-shadow: 0 0 0 2px #1F5C45;
+}
+
+::deep .settings-input[readonly] {
+    color: rgba(43, 43, 40, 0.65);
+}
+
+::deep select.settings-input {
+    appearance: auto;
+}
+
+.card-footer {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(43, 43, 40, 0.1);
+}
+
+.primary-button,
+.secondary-button,
+.logout-button,
+.membership-button {
+    border: 0;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    transition: background 0.2s, color 0.2s, transform 0.2s;
+}
+
+.primary-button {
+    background: #1F5C45;
+    color: #ffffff;
+    padding: 0.8rem 1.4rem;
+}
+
+.primary-button:hover {
+    background: #164433;
+}
+
+.primary-button:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+.secondary-button {
+    background: #ffffff;
+    color: #1F5C45;
+    border: 2px solid #1F5C45;
+    padding: 0.7rem 1.5rem;
+}
+
+.secondary-button:hover {
+    background: #DCE9DF;
+}
+
+.logout-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.logout-copy {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.logout-icon {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 0.75rem;
+    background: rgba(139, 69, 69, 0.1);
+    color: #8B4545;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.45rem;
+}
+
+.logout-copy h3 {
+    margin: 0;
+    color: #2B2B28;
+    font-weight: 600;
+}
+
+.logout-copy p {
+    margin: 0.15rem 0 0;
+    color: rgba(43, 43, 40, 0.6);
+    font-size: 0.875rem;
+}
+
+.logout-button {
+    background: rgba(139, 69, 69, 0.1);
+    color: #8B4545;
+    border: 1px solid rgba(139, 69, 69, 0.2);
+    padding: 0.7rem 1rem;
+}
+
+.logout-button:hover {
+    background: rgba(139, 69, 69, 0.2);
+}
+
+.membership-card {
+    background: linear-gradient(135deg, #1F5C45, #164433);
+    color: #ffffff;
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: 0 2px 8px rgba(43, 43, 40, 0.07);
+}
+
+.membership-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.membership-head h2 {
+    margin: 0 0 0.5rem;
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-size: 1.875rem;
+    font-weight: 600;
+}
+
+.membership-head p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.membership-head span {
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 0.5rem 1rem;
+    font-weight: 600;
+}
+
+.membership-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.membership-stat {
+    border-radius: 0.75rem;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 1rem;
+}
+
+.membership-stat i {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 1.5rem;
+}
+
+.membership-stat p {
+    margin: 0 0 0.25rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.875rem;
+}
+
+.membership-stat strong {
+    font-size: 1.125rem;
+}
+
+.benefit-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.benefit-list div {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.benefit-list span {
+    width: 0.375rem;
+    height: 0.375rem;
+    border-radius: 999px;
+    background: #ffffff;
+}
+
+.membership-footer {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.membership-button {
+    width: 100%;
+    background: #ffffff;
+    color: #1F5C45;
+    padding: 0.85rem 1rem;
+}
+
+.membership-button:hover {
+    background: #DCE9DF;
+    color: #164433;
+}
+
+.notification-head h2 {
+    margin: 0 0 1.5rem;
+    color: #2B2B28;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.notification-head p {
+    margin: 0 0 2rem;
+    color: rgba(43, 43, 40, 0.7);
+}
+
+.notification-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.notification-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1.5rem;
+    border-radius: 0.75rem;
+    background: #F7F5F0;
+    padding: 1.5rem;
+}
+
+.notification-row strong {
+    display: block;
+    margin-bottom: 0.25rem;
+    color: #2B2B28;
+    font-weight: 600;
+}
+
+.notification-row small {
+    display: block;
+    color: rgba(43, 43, 40, 0.6);
+    font-size: 0.875rem;
+}
+
+::deep .toggle-input {
+    appearance: none;
+    width: 3.5rem;
+    height: 2rem;
+    border: 0;
+    border-radius: 999px;
+    background: rgba(43, 43, 40, 0.2);
+    position: relative;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+::deep .toggle-input::before {
+    content: "";
+    position: absolute;
+    top: 0.25rem;
+    left: 0.25rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 999px;
+    background: #ffffff;
+    transition: transform 0.2s;
+}
+
+::deep .toggle-input:checked {
+    background: #1F5C45;
+}
+
+::deep .toggle-input:checked::before {
+    transform: translateX(1.5rem);
+}
+
+.settings-muted {
+    margin: 0;
+    color: rgba(43, 43, 40, 0.65);
+}
+
+.settings-error {
+    margin: 0;
+    color: #8B4545;
+    font-weight: 600;
+}
+
+.settings-success {
+    margin: -0.75rem 0 1.5rem;
+    color: #1F5C45;
+    font-weight: 600;
+}
+
+@media (max-width: 800px) {
+    .settings-shell {
+        padding: 2rem 1rem 3rem;
+    }
+
+    .settings-header h1 {
+        font-size: 2.35rem;
+    }
+
+    .settings-tabs {
+        flex-wrap: wrap;
+    }
+
+    .profile-top,
+    .logout-card,
+    .membership-head {
+        flex-direction: column;
+    }
+
+    .membership-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .settings-tab,
+    .logout-button {
+        width: 100%;
+        justify-content: center;
+    }
+}
