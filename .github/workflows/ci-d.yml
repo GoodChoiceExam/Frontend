@@ -64,3 +64,24 @@ jobs:
             --ref master
         env:
           GH_TOKEN: ${{ secrets.DEPLOY_PAT }}
+  notify-telegram:
+    name: Notify Telegram
+    needs: [build, push-image]
+    runs-on: ubuntu-latest
+    if: always()
+
+    steps:
+      - name: Send Telegram notification
+        run: |
+          MESSAGE="🚀 FitLife Frontend CI/CD
+
+          Build: ${{ needs.build.result }}
+          Docker push: ${{ needs.push-image.result }}
+
+          Repo: ${{ github.repository }}
+          Branch: ${{ github.ref_name }}
+          Commit: ${{ github.event.head_commit.message }}"
+
+          curl -s -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
+            -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
+            -d text="$MESSAGE"
