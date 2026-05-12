@@ -38,4 +38,10 @@ public class AuthService
     {
         return await _js.InvokeAsync<string?>("localStorage.getItem", "jwt");
     }
+    
+    public async Task<bool> IsLoggedInAsync()
+    {
+        var token = await GetTokenAsync();
+        return !string.IsNullOrEmpty(token);
+    }
 }
