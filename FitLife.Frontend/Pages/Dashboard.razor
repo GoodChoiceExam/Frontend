@@ -95,17 +95,31 @@
     {
         userName = await AuthService.GetUserNameAsync() ?? "der";
 
-        var classes = await ClassesService.GetAllAsync();
-        nextClass = classes
-            .Where(c => c.StartTime > DateTime.UtcNow)
-            .OrderBy(c => c.StartTime)
-            .FirstOrDefault();
-
-        liveStream = await LivestreamService.GetLiveNowAsync();
-        if (liveStream is null)
+        try
         {
-            var all = await LivestreamService.GetAllAsync();
-            liveStream = all.OrderBy(l => l.StartTime).FirstOrDefault();
+            var classes = await ClassesService.GetAllAsync();
+            nextClass = classes
+                .Where(c => c.StartTime > DateTime.UtcNow)
+                .OrderBy(c => c.StartTime)
+                .FirstOrDefault();
+        }
+        catch
+        {
+            nextClass = null;
+        }
+
+        try
+        {
+            liveStream = await LivestreamService.GetLiveNowAsync();
+            if (liveStream is null)
+            {
+                var all = await LivestreamService.GetAllAsync();
+                liveStream = all.OrderBy(l => l.StartTime).FirstOrDefault();
+            }
+        }
+        catch
+        {
+            liveStream = null;
         }
     }
 

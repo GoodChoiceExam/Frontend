@@ -1,0 +1,10 @@
+namespace FitLife.Frontend.Models;
+
+public class ClassBooking
+{
+    public Guid Id { get; set; }
+    public Guid MemberId { get; set; }
+    public Guid TrainingClassId { get; set; }
+    public DateTime BookedAt { get; set; }
+    public string Status { get; set; } = string.Empty;
+}
