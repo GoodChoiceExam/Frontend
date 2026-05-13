@@ -13,4 +13,5 @@ public class TrainingClass
     public int Capacity { get; set; }
     public int AvailableSpots { get; set; }
     public Guid TrainerId { get; set; }
+    public List<ClassBooking> Bookings { get; set; } = [];
 }

@@ -1,0 +1,152 @@
+@page "/mine-tilmeldinger"
+@using FitLife.Frontend.Models
+@using FitLife.Frontend.Services
+@inject ClassesService ClassesService
+@inject MembershipService MembershipService
+@inject NavigationManager Nav
+
+<div class="bookings-page">
+    <div class="bookings-header">
+        <div>
+            <h1>Mine tilmeldinger</h1>
+            <p>Se dine kommende hold og afmeld dig, hvis planerne ændrer sig.</p>
+        </div>
+        <button class="secondary-btn" @onclick='() => Nav.NavigateTo("/holdoversigt")'>
+            Find hold
+        </button>
+    </div>
+
+    @if (isLoading)
+    {
+        <p class="loading">Henter dine tilmeldinger...</p>
+    }
+    else if (!string.IsNullOrWhiteSpace(errorMessage))
+    {
+        <div class="state-box">
+            <h2>Kunne ikke hente tilmeldinger</h2>
+            <p>@errorMessage</p>
+        </div>
+    }
+    else if (member is null)
+    {
+        <div class="state-box">
+            <h2>Profil mangler</h2>
+            <p>Du skal have en medlemsprofil, før dine holdtilmeldinger kan vises.</p>
+            <button class="primary-btn" @onclick='() => Nav.NavigateTo("/opret-profil")'>Opret profil</button>
+        </div>
+    }
+    else if (!bookedClasses.Any())
+    {
+        <div class="state-box">
+            <h2>Ingen tilmeldinger endnu</h2>
+            <p>Når du booker et hold, vises det her.</p>
+            <button class="primary-btn" @onclick='() => Nav.NavigateTo("/holdoversigt")'>Se hold</button>
+        </div>
+    }
+    else
+    {
+        <div class="bookings-list">
+            @foreach (var item in bookedClasses)
+            {
+                <div class="booking-card">
+                    <div class="booking-date">
+                        <span class="booking-day">@item.TrainingClass.StartTime.ToLocalTime().ToString("dd")</span>
+                        <span class="booking-month">@item.TrainingClass.StartTime.ToLocalTime().ToString("MMM")</span>
+                    </div>
+
+                    <div class="booking-content">
+                        <div class="booking-top">
+                            <span class="category-badge">@item.TrainingClass.Category</span>
+                            <span class="difficulty-badge">@item.TrainingClass.DifficultyLevel</span>
+                        </div>
+                        <h2>@item.TrainingClass.Title</h2>
+                        <p>@item.TrainingClass.Description</p>
+                        <div class="booking-meta">
+                            <span><i class="bi bi-clock"></i> @item.TrainingClass.StartTime.ToLocalTime().ToString("HH:mm") - @item.TrainingClass.EndTime.ToLocalTime().ToString("HH:mm")</span>
+                            <span><i class="bi bi-geo-alt"></i> @item.TrainingClass.Location</span>
+                            <span><i class="bi bi-check2-circle"></i> Booket @item.Booking.BookedAt.ToLocalTime().ToString("dd. MMM yyyy")</span>
+                        </div>
+                    </div>
+
+                    <button class="cancel-btn"
+                            disabled="@(cancellingBookingId == item.Booking.Id)"
+                            @onclick="() => CancelBooking(item)">
+                        @(cancellingBookingId == item.Booking.Id ? "Afmelder..." : "Afmeld")
+                    </button>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private Member? member;
+    private List<BookedClassViewModel> bookedClasses = [];
+    private bool isLoading = true;
+    private string? errorMessage;
+    private Guid? cancellingBookingId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadBookingsAsync();
+    }
+
+    private async Task LoadBookingsAsync()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+
+            member = await MembershipService.GetCurrentMemberAsync();
+            if (member is null)
+            {
+                bookedClasses = [];
+                return;
+            }
+
+            var classes = await ClassesService.GetBookedByMemberAsync(member.Id);
+            bookedClasses = classes
+                .Select(trainingClass => new BookedClassViewModel(
+                    trainingClass,
+                    ClassesService.GetActiveBooking(trainingClass, member.Id)!))
+                .ToList();
+        }
+        catch
+        {
+            errorMessage = "Tjek at du er logget ind, og at Membership og Classes API kører.";
+            bookedClasses = [];
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task CancelBooking(BookedClassViewModel item)
+    {
+        try
+        {
+            cancellingBookingId = item.Booking.Id;
+
+            var wasCancelled = await ClassesService.CancelBookingAsync(item.TrainingClass.Id, item.Booking.Id);
+            if (!wasCancelled)
+            {
+                errorMessage = "Afmelding fejlede. Prøv igen om lidt.";
+                return;
+            }
+
+            await LoadBookingsAsync();
+        }
+        catch
+        {
+            errorMessage = "Afmelding fejlede. Tjek at Classes API kører.";
+        }
+        finally
+        {
+            cancellingBookingId = null;
+        }
+    }
+
+    private sealed record BookedClassViewModel(TrainingClass TrainingClass, ClassBooking Booking);
+}

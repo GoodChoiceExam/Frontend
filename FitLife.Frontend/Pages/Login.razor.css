@@ -1,0 +1,176 @@
+.fitlife-login {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    background: #F7F5F0;
+    color: #2B2B28;
+}
+
+.fitlife-login-panel {
+    width: 100%;
+    max-width: 28rem;
+}
+
+.fitlife-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    color: rgba(43, 43, 40, 0.6);
+    font-size: 1rem;
+    line-height: 1.5;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.fitlife-back-link:hover,
+.fitlife-back-link:focus-visible {
+    color: #1F5C45;
+    text-decoration: none;
+}
+
+.fitlife-login-heading {
+    margin-bottom: 2rem;
+}
+
+.fitlife-login-heading h1 {
+    margin: 0 0 0.75rem;
+    color: #2B2B28;
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-size: 3rem;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: 0;
+}
+
+.fitlife-login-heading p {
+    margin: 0;
+    color: rgba(43, 43, 40, 0.6);
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+}
+
+.fitlife-login-card {
+    padding: 2rem 2rem 2.35rem;
+    border-radius: 1.5rem;
+    background: #FFFFFF;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+::deep .fitlife-login-form {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.fitlife-form-field label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #2B2B28;
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.25rem;
+}
+
+::deep .fitlife-form-input {
+    width: 100%;
+    min-height: 50px;
+    padding: 0.75rem 1rem;
+    border: 1px solid rgba(43, 43, 40, 0.1);
+    border-radius: 0.75rem;
+    background: #F7F5F0;
+    color: #2B2B28;
+    font: inherit;
+    font-size: 1rem;
+    line-height: 1.5;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+::deep .fitlife-form-input::placeholder {
+    color: rgba(43, 43, 40, 0.46);
+}
+
+::deep .fitlife-form-input:focus {
+    outline: none;
+    border-color: transparent;
+    box-shadow: 0 0 0 2px #1F5C45;
+}
+
+.fitlife-login-button {
+    width: 100%;
+    min-height: 60px;
+    padding: 1rem 1.5rem;
+    border: 0;
+    border-radius: 0.75rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #1F5C45;
+    color: white;
+    font: inherit;
+    font-size: 1.125rem;
+    font-weight: 500;
+    line-height: 1.75rem;
+    cursor: pointer;
+    transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.fitlife-login-button:hover,
+.fitlife-login-button:focus-visible {
+    background: #164433;
+    box-shadow: 0 10px 15px -3px rgba(31, 92, 69, 0.2), 0 4px 6px -4px rgba(31, 92, 69, 0.2);
+    transform: translateY(-2px);
+}
+
+.fitlife-login-button:disabled {
+    cursor: wait;
+    opacity: 0.72;
+    box-shadow: none;
+    transform: none;
+}
+
+.fitlife-signup-text {
+    margin: 1.25rem 0 0;
+    color: rgba(43, 43, 40, 0.6);
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    text-align: center;
+}
+
+.fitlife-signup-text a {
+    color: #1F5C45;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.fitlife-signup-text a:hover,
+.fitlife-signup-text a:focus-visible {
+    text-decoration: underline;
+}
+
+.fitlife-login-error {
+    margin: 0 0 1.5rem;
+    padding: 0.85rem 1rem;
+    border: 1px solid rgba(179, 33, 33, 0.18);
+    border-radius: 0.75rem;
+    background: rgba(179, 33, 33, 0.08);
+    color: #8F1D1D;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+@media (max-width: 640px) {
+    .fitlife-login {
+        align-items: flex-start;
+        padding: 2rem 1rem;
+    }
+
+    .fitlife-login-heading h1 {
+        font-size: 2.75rem;
+    }
+
+    .fitlife-login-card {
+        padding: 1.5rem;
+    }
+}
