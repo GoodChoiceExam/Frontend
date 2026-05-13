@@ -42,4 +42,20 @@ public class TrainingLogService(HttpClient http, AuthService authService)
         await SetAuthHeader();
         await http.DeleteAsync($"workout/programs/{programId}/exercises/{exerciseId}");
     }
+    
+    public async Task<WorkoutProgram?> UpdateProgramNameAsync(Guid programId, string newName)
+    {
+        await SetAuthHeader();
+        var response = await http.PutAsJsonAsync($"workout/programs/{programId}", newName);
+        if (!response.IsSuccessStatusCode) return null;
+        return await response.Content.ReadFromJsonAsync<WorkoutProgram>();
+    }
+    
+    public async Task<WorkoutProgram?> UpdateExerciseAsync(Guid programId, Guid exerciseId, string name, int sets, int reps, decimal? weightKg)
+    {
+        await SetAuthHeader();
+        var response = await http.PutAsJsonAsync($"workout/programs/{programId}/exercises/{exerciseId}", new { name, sets, reps, weightKg });
+        if (!response.IsSuccessStatusCode) return null;
+        return await response.Content.ReadFromJsonAsync<WorkoutProgram>();
+    }
 }

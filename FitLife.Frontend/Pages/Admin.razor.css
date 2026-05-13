@@ -1,0 +1,100 @@
+.admin-page {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+    background-color: #F7F5F0;
+    min-height: 100vh;
+    font-family: "DM Sans", "Helvetica Neue", Arial, sans-serif;
+}
+
+.admin-page h1 {
+    font-size: 2rem;
+    color: #2B2B28;
+    margin-bottom: 2rem;
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-weight: 600;
+}
+
+.admin-sections {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.admin-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    flex: 1;
+    min-width: 280px;
+}
+
+.admin-card h2 {
+    font-size: 1.2rem;
+    color: #1F5C45;
+    margin-bottom: 1.2rem;
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-weight: 600;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    font-size: 0.9rem;
+    color: #444;
+    margin-bottom: 0.3rem;
+}
+
+.form-group input {
+    padding: 0.5rem 0.8rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 0.95rem;
+}
+
+.admin-btn {
+    display: block;
+    width: 100%;
+    padding: 0.6rem 1rem;
+    margin-bottom: 0.8rem;
+    background: #1F5C45;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    text-align: left;
+    transition: background 0.2s;
+}
+
+.admin-btn:hover:not(:disabled) {
+    background: #174d38;
+}
+
+.admin-btn:disabled {
+    background: #aaa;
+    cursor: not-allowed;
+}
+
+.success-msg {
+    color: #1F5C45;
+    background: #E8F0EC;
+    padding: 0.5rem 0.8rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+.error-msg {
+    color: #c0392b;
+    background: #fdecea;
+    padding: 0.5rem 0.8rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}

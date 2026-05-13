@@ -22,6 +22,8 @@ public class LivestreamService(HttpClient http, AuthService authService)
     public async Task<LivestreamSession?> GetLiveNowAsync()
     {
         await SetAuthHeader();
-        return await http.GetFromJsonAsync<LivestreamSession>("api/livestreams/live");
+        var response = await http.GetAsync("api/livestreams/live");
+        if (!response.IsSuccessStatusCode) return null;
+        return await response.Content.ReadFromJsonAsync<LivestreamSession>();
     }
 }
