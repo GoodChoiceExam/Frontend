@@ -26,4 +26,24 @@ public class ClassesService(HttpClient http, AuthService authService)
         return response.IsSuccessStatusCode;
     }
 
+    public async Task<ClassBooking?> BookAsync(Guid classId, Guid memberId)
+    {
+        await SetAuthHeader();
+        var response = await http.PostAsJsonAsync($"api/classes/{classId}/bookings", new { memberId });
+        if (!response.IsSuccessStatusCode) return null;
+        return await response.Content.ReadFromJsonAsync<ClassBooking>();
+    }
+
+    public async Task<bool> CancelBookingAsync(Guid classId, Guid bookingId)
+    {
+        await SetAuthHeader();
+        var response = await http.PutAsync($"api/classes/{classId}/bookings/{bookingId}/cancel", null);
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<List<ClassBooking>> GetMyBookingsAsync(Guid memberId)
+    {
+        await SetAuthHeader();
+        return await http.GetFromJsonAsync<List<ClassBooking>>($"api/classes/bookings/mine?memberId={memberId}") ?? [];
+    }
 }

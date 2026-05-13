@@ -2,73 +2,322 @@
 @using FitLife.Frontend.Models
 @using FitLife.Frontend.Services
 @inject ClassesService ClassesService
+@inject AuthService AuthService
 
 <div class="hold-page">
-    <div class="hold-header">
-        <h1>Holdoversigt</h1>
+
+    @if (activeView == "overview")
+    {
+        <div class="hold-header">
+            <h1>Holdoversigt</h1>
+            <button class="mine-btn" @onclick='() => activeView = "bookings"'>Mine tilmeldinger</button>
+        </div>
         <input class="search-input" type="text" placeholder="Søg efter hold..." @bind="searchQuery" @bind:event="oninput" />
-    </div>
 
-    <div class="filter-bar">
-        <button class="filter-btn @(activeCategory == null ? "active" : "")" @onclick="() => activeCategory = null">Alle</button>
-        @foreach (var cat in categories)
-        {
-            <button class="filter-btn @(activeCategory == cat ? "active" : "")" @onclick="() => activeCategory = cat">@cat</button>
-        }
-    </div>
-
-    @if (isLoading)
-    {
-        <p class="loading">Henter hold...</p>
-    }
-    else if (!FilteredClasses.Any())
-    {
-        <p class="loading">Ingen hold fundet.</p>
-    }
-    else
-    {
-        <div class="class-list">
-            @foreach (var c in FilteredClasses)
+        <div class="filter-bar">
+            <button class="filter-btn @(activeCategory == null ? "active" : "")" @onclick="() => activeCategory = null">Alle</button>
+            @foreach (var cat in categories)
             {
-                <div class="class-card">
-                    <div class="card-image"></div>
-                    <div class="card-content">
-                        <div class="card-top">
-                            <span class="category-badge">@c.Category</span>
-                            <span class="difficulty-badge">@c.DifficultyLevel</span>
+                <button class="filter-btn @(activeCategory == cat ? "active" : "")" @onclick="() => activeCategory = cat">@cat</button>
+            }
+        </div>
+
+        @if (isLoading)
+        {
+            <p class="loading">Henter hold...</p>
+        }
+        else if (!FilteredClasses.Any())
+        {
+            <p class="loading">Ingen hold fundet.</p>
+        }
+        else
+        {
+            <div class="class-list">
+                @foreach (var c in FilteredClasses)
+                {
+                    <div class="class-card">
+                        <div class="card-image"></div>
+                        <div class="card-content">
+                            <div class="card-top">
+                                <span class="category-badge">@c.Category</span>
+                                <span class="difficulty-badge">@c.DifficultyLevel</span>
+                            </div>
+                            <h2 class="card-title">@c.Title</h2>
+                            <p class="card-description">@c.Description</p>
+                            <div class="card-meta">
+                                <span><i class="bi bi-clock"></i> @c.StartTime.ToString("ddd dd. MMM, HH:mm")</span>
+                                <span><i class="bi bi-geo-alt"></i> @c.Location</span>
+                                <span><i class="bi bi-people"></i> @c.AvailableSpots / @c.Capacity pladser</span>
+                            </div>
+                            <button class="book-btn" @onclick="() => SelectClass(c)">Se hold</button>
                         </div>
-                        <h2 class="card-title">@c.Title</h2>
-                        <p class="card-description">@c.Description</p>
-                        <div class="card-meta">
-                            <span>🕐 @c.StartTime.ToString("ddd dd. MMM, HH:mm")</span>
-                            <span>📍 @c.Location</span>
-                            <span>👥 @c.AvailableSpots / @c.Capacity pladser</span>
-                        </div>
-                        <button class="book-btn" disabled="@(c.AvailableSpots <= 0)">
-                            @(c.AvailableSpots > 0 ? "Book hold" : "Fuldt booket")
-                        </button>
                     </div>
+                }
+            </div>
+        }
+    }
+
+    @if (activeView == "detail" && selectedClass is not null)
+    {
+        <div class="detail-page">
+            <button class="back-btn" @onclick='() => { activeView = "overview"; showConfirmation = false; }'>
+                <i class="bi bi-arrow-left"></i> Tilbage til holdoversigt
+            </button>
+
+            <div class="detail-layout">
+                <div class="detail-left">
+                    <div class="detail-image"></div>
+
+                    <div class="detail-badges">
+                        <span class="detail-time-badge">@GetRelativeTime(selectedClass.StartTime) kl. @selectedClass.StartTime.ToString("HH:mm")</span>
+                        <span class="difficulty-badge">@selectedClass.DifficultyLevel</span>
+                    </div>
+
+                    <h1 class="detail-title">@selectedClass.Title</h1>
+                    <p class="detail-description">@selectedClass.Description</p>
+
+                    <div class="detail-stats">
+                        <div class="detail-stat">
+                            <div class="stat-icon"><i class="bi bi-clock"></i></div>
+                            <div>
+                                <div class="stat-label">Varighed</div>
+                                <div class="stat-value">@((int)(selectedClass.EndTime - selectedClass.StartTime).TotalMinutes) min</div>
+                            </div>
+                        </div>
+                        <div class="detail-stat">
+                            <div class="stat-icon"><i class="bi bi-geo-alt"></i></div>
+                            <div>
+                                <div class="stat-label">Lokation</div>
+                                <div class="stat-value">@selectedClass.Location</div>
+                            </div>
+                        </div>
+                        <div class="detail-stat">
+                            <div class="stat-icon"><i class="bi bi-people"></i></div>
+                            <div>
+                                <div class="stat-label">Pladser</div>
+                                <div class="stat-value">@selectedClass.AvailableSpots ledige</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-right">
+                    <div class="booking-card">
+                        <h3>Book din plads</h3>
+                        <div class="booking-info">
+                            <div class="booking-row">
+                                <span class="booking-label">Dato</span>
+                                <span class="booking-value"><strong>@selectedClass.StartTime.ToString("dddd d. MMMM")</strong></span>
+                            </div>
+                            <div class="booking-row">
+                                <span class="booking-label">Tidspunkt</span>
+                                <span class="booking-value"><strong>@selectedClass.StartTime.ToString("HH:mm") – @selectedClass.EndTime.ToString("HH:mm")</strong></span>
+                            </div>
+                            <div class="booking-row">
+                                <span class="booking-label">Center</span>
+                                <span class="booking-value"><strong>FitLife @selectedClass.Location</strong></span>
+                            </div>
+                        </div>
+                        <div class="booking-price">
+                            <span class="booking-label">Pris</span>
+                            <span class="price-value">Inkluderet</span>
+                            <p class="price-note">Dette hold er inkluderet i dit medlemskab</p>
+                        </div>
+                        <button class="book-btn" @onclick="BookClass"
+                            disabled="@(selectedClass.AvailableSpots <= 0 || bookedClasses.Any(b => b.TrainingClassId == selectedClass.Id))">
+                            @(bookedClasses.Any(b => b.TrainingClassId == selectedClass.Id) ? "Allerede booket" : selectedClass.AvailableSpots > 0 ? "Book hold" : "Fuldt booket")
+                        </button>
+                        @if (bookedClasses.Any(b => b.TrainingClassId == selectedClass.Id))
+                        {
+                            <button class="afmeld-link-btn" @onclick="AfmeldValgt">Fortrudt? Afmeld booking</button>
+                        }
+                        <p class="cancel-note">Du kan afmelde dig indtil 2 timer før start</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    @if (activeView == "bookings")
+    {
+        <div class="detail-page">
+            <button class="back-btn" @onclick='() => activeView = "overview"'>
+                <i class="bi bi-arrow-left"></i> Tilbage til hold
+            </button>
+
+            <h1 class="detail-title">Mine tilmeldinger</h1>
+            <p class="detail-description">Dine kommende bookede hold</p>
+
+            @if (!bookedClasses.Any())
+            {
+                <p class="loading">Du har ingen kommende hold booket.</p>
+            }
+            else
+            {
+                <div class="bookings-list">
+                    @foreach (var b in bookedClasses)
+                    {
+                        var cls = allClasses.FirstOrDefault(c => c.Id == b.TrainingClassId);
+                        @if (cls is not null)
+                        {
+                            <div class="booking-item">
+                                <div class="booking-item-info">
+                                    <h3>@cls.Title</h3>
+                                    <div class="booking-item-meta">
+                                        <span><i class="bi bi-calendar3"></i> @GetRelativeTime(cls.StartTime)</span>
+                                        <span><i class="bi bi-clock"></i> @cls.StartTime.ToString("HH:mm") – @cls.EndTime.ToString("HH:mm")</span>
+                                        <span><i class="bi bi-geo-alt"></i> @cls.Location</span>
+                                    </div>
+                                </div>
+                                <button class="afmeld-btn" @onclick="() => Afmeld(b)">Afmeld</button>
+                            </div>
+                        }
+                    }
+                </div>
+            }
+
+            <h2 class="activity-header">Seneste aktivitet</h2>
+            @if (!PastClasses.Any())
+            {
+                <p class="loading">Ingen tidligere aktivitet.</p>
+            }
+            else
+            {
+                <div class="activity-list">
+                    @foreach (var a in PastClasses)
+                    {
+                        <div class="activity-item">
+                            <div>
+                                <div class="activity-title">@a.Title</div>
+                                <div class="activity-time">@a.StartTime.ToString("d. MMM, HH:mm")</div>
+                            </div>
+                            <span class="activity-duration">@((int)(a.EndTime - a.StartTime).TotalMinutes) min</span>
+                        </div>
+                    }
                 </div>
             }
         </div>
     }
 </div>
 
+@if (showConfirmation && selectedClass is not null)
+{
+    <div class="modal-overlay" @onclick="CloseConfirmation">
+        <div class="modal-card" @onclick:stopPropagation="true">
+            <h1>Du er nu tilmeldt!</h1>
+            <h2>@selectedClass.Title</h2>
+            <div class="confirmation-rows">
+                <div class="confirmation-row">
+                    <div class="conf-icon"><i class="bi bi-calendar3"></i></div>
+                    <div>
+                        <div class="conf-label">Dato</div>
+                        <div class="conf-value">@selectedClass.StartTime.ToString("dddd d. MMMM yyyy")</div>
+                    </div>
+                </div>
+                <div class="confirmation-row">
+                    <div class="conf-icon"><i class="bi bi-clock"></i></div>
+                    <div>
+                        <div class="conf-label">Tidspunkt</div>
+                        <div class="conf-value">@selectedClass.StartTime.ToString("HH:mm") – @selectedClass.EndTime.ToString("HH:mm")</div>
+                    </div>
+                </div>
+                <div class="confirmation-row">
+                    <div class="conf-icon"><i class="bi bi-geo-alt"></i></div>
+                    <div>
+                        <div class="conf-label">Lokation</div>
+                        <div class="conf-value">FitLife @selectedClass.Location</div>
+                    </div>
+                </div>
+            </div>
+            <hr />
+            <h4>Næste skridt</h4>
+            <ul class="next-steps">
+                <li><i class="bi bi-check"></i> Du modtager en bekræftelse på e-mail</li>
+                <li><i class="bi bi-check"></i> Vi sender dig en påmindelse 2 timer før start</li>
+                <li><i class="bi bi-check"></i> Husk at medbringe dit udstyr</li>
+            </ul>
+            <button class="close-btn" @onclick="CloseConfirmation">Luk</button>
+        </div>
+    </div>
+}
+
 @code {
     private List<TrainingClass> allClasses = [];
+    private List<ClassBooking> bookedClasses = [];
     private bool isLoading = true;
     private string? searchQuery;
     private string? activeCategory;
+    private string activeView = "overview";
+    private TrainingClass? selectedClass;
+    private bool showConfirmation = false;
+    private Guid? memberId;
 
     private readonly List<string> categories = ["Yoga", "HIIT", "Strength", "Mobility"];
 
     private IEnumerable<TrainingClass> FilteredClasses => allClasses
+        .Where(c => c.StartTime >= DateTime.UtcNow)
         .Where(c => activeCategory == null || c.Category == activeCategory)
         .Where(c => string.IsNullOrWhiteSpace(searchQuery) || c.Title.Contains(searchQuery, StringComparison.OrdinalIgnoreCase));
+
+    private IEnumerable<TrainingClass> PastClasses => allClasses
+        .Where(c => c.StartTime < DateTime.UtcNow)
+        .OrderByDescending(c => c.StartTime)
+        .Take(5);
 
     protected override async Task OnInitializedAsync()
     {
         allClasses = await ClassesService.GetAllAsync();
+        memberId = await AuthService.GetMemberIdAsync();
+        if (memberId is not null)
+            bookedClasses = await ClassesService.GetMyBookingsAsync(memberId.Value);
         isLoading = false;
+    }
+
+    private void SelectClass(TrainingClass c)
+    {
+        selectedClass = c;
+        activeView = "detail";
+    }
+
+    private async Task BookClass()
+    {
+        if (selectedClass is null || memberId is null) return;
+        var booking = await ClassesService.BookAsync(selectedClass.Id, memberId.Value);
+        if (booking is not null)
+        {
+            bookedClasses.Add(booking);
+            showConfirmation = true;
+        }
+    }
+
+    private void CloseConfirmation()
+    {
+        showConfirmation = false;
+    }
+
+    private async Task AfmeldValgt()
+    {
+        if (selectedClass is null) return;
+        var booking = bookedClasses.FirstOrDefault(b => b.TrainingClassId == selectedClass.Id);
+        if (booking is null) return;
+        var success = await ClassesService.CancelBookingAsync(booking.TrainingClassId, booking.Id);
+        if (success)
+            bookedClasses.Remove(booking);
+    }
+
+    private async Task Afmeld(ClassBooking booking)
+    {
+        var success = await ClassesService.CancelBookingAsync(booking.TrainingClassId, booking.Id);
+        if (success)
+            bookedClasses.Remove(booking);
+    }
+
+    private string GetRelativeTime(DateTime dt)
+    {
+        var diff = dt.Date - DateTime.UtcNow.Date;
+        if (diff.Days == 0) return "I dag";
+        if (diff.Days == 1) return "I morgen";
+        if (diff.Days == -1) return "I går";
+        return dt.ToString("d. MMM");
     }
 }

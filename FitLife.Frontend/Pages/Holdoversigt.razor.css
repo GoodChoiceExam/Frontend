@@ -11,22 +11,39 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
 }
 
 .hold-header h1 {
     font-size: 2rem;
-    color: #1F5C45;
+    color: #2B2B28;
     margin: 0;
 }
 
+.mine-btn {
+    background: #1F5C45;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.mine-btn:hover {
+    background: #174d38;
+}
+
 .search-input {
-    padding: 0.5rem 1rem;
-    border: 1px solid #ccc;
+    width: 100%;
+    padding: 0.6rem 1rem;
+    border: 1px solid #e0e0e0;
     border-radius: 8px;
     font-size: 0.95rem;
-    width: 220px;
     background: #fff;
+    margin-bottom: 1rem;
+    box-sizing: border-box;
 }
 
 .filter-bar {
@@ -143,4 +160,412 @@
 .book-btn:disabled {
     background: #aaa;
     cursor: not-allowed;
+}
+
+/* Detail view */
+.detail-page {
+    padding-top: 0.5rem;
+}
+
+.back-btn {
+    background: none;
+    border: none;
+    color: #1F5C45;
+    font-size: 0.95rem;
+    cursor: pointer;
+    padding: 0;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+}
+
+.back-btn:hover {
+    opacity: 0.7;
+}
+
+.detail-layout {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 2rem;
+    align-items: start;
+}
+
+.detail-image {
+    width: 100%;
+    height: 280px;
+    background: #1F5C45;
+    border-radius: 16px;
+    margin-bottom: 1.5rem;
+}
+
+.detail-badges {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.detail-time-badge {
+    font-size: 0.85rem;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    background: #E8F0EC;
+    color: #1F5C45;
+    font-weight: 600;
+}
+
+.detail-title {
+    font-size: 2rem;
+    color: #1a1a1a;
+    margin: 0 0 0.75rem;
+    font-weight: 700;
+}
+
+.detail-description {
+    font-size: 1rem;
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+.detail-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    border-top: 1px solid #e0e0e0;
+    padding-top: 1.5rem;
+}
+
+.detail-stat {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: #F7F5F0;
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+}
+
+.stat-icon {
+    font-size: 1.2rem;
+    background: #E8F0EC;
+    color: #1F5C45;
+    padding: 0.5rem;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+}
+
+.stat-label {
+    font-size: 0.8rem;
+    color: #888;
+}
+
+.stat-value {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+/* Booking card */
+.booking-card {
+    background: #1F5C45;
+    color: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    position: sticky;
+    top: 2rem;
+}
+
+.booking-card h3 {
+    font-size: 1.2rem;
+    margin: 0;
+}
+
+.booking-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    background: rgba(255,255,255,0.1);
+    border-radius: 10px;
+    padding: 1rem;
+}
+
+.booking-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+}
+
+.booking-label {
+    opacity: 0.75;
+}
+
+.booking-value {
+    text-align: right;
+}
+
+.booking-price {
+    background: rgba(255,255,255,0.1);
+    border-radius: 10px;
+    padding: 1rem;
+    font-size: 0.9rem;
+}
+
+.price-value {
+    display: block;
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin: 0.25rem 0;
+}
+
+.price-note {
+    font-size: 0.8rem;
+    opacity: 0.75;
+    margin: 0;
+}
+
+.booking-card .book-btn {
+    background: white;
+    color: #1F5C45;
+    font-weight: 700;
+    padding: 0.85rem;
+    border-radius: 10px;
+    font-size: 1rem;
+    width: 100%;
+    align-self: unset;
+    margin-top: 0;
+}
+
+.booking-card .book-btn:hover:not(:disabled) {
+    opacity: 0.9;
+    background: white;
+}
+
+.afmeld-link-btn {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.7);
+    font-size: 0.85rem;
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 0;
+    text-align: center;
+    width: 100%;
+    transition: color 0.2s;
+}
+
+.afmeld-link-btn:hover {
+    color: white;
+}
+
+.cancel-note {
+    font-size: 0.8rem;
+    opacity: 0.7;
+    text-align: center;
+    margin: 0;
+}
+
+/* Bookings view */
+.bookings-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+}
+
+.booking-item {
+    background: white;
+    border-radius: 12px;
+    padding: 1.2rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.booking-item-info h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem;
+    color: #1a1a1a;
+}
+
+.booking-item-meta {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.85rem;
+    color: #555;
+    flex-wrap: wrap;
+}
+
+.afmeld-btn {
+    background: none;
+    border: 1px solid #1F5C45;
+    color: #1F5C45;
+    border-radius: 8px;
+    padding: 0.4rem 1rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.2s, color 0.2s;
+}
+
+.afmeld-btn:hover {
+    background: #1F5C45;
+    color: white;
+}
+
+.activity-header {
+    font-size: 1.3rem;
+    color: #2B2B28;
+    margin-bottom: 1rem;
+}
+
+.activity-list {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.activity-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+}
+
+.activity-title {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #1a1a1a;
+}
+
+.activity-time {
+    font-size: 0.8rem;
+    color: #888;
+    margin-top: 0.2rem;
+}
+
+.activity-duration {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1F5C45;
+}
+
+/* Modal */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-card {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    max-width: 480px;
+    width: 90%;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.modal-card h1 {
+    font-size: 1.8rem;
+    color: #1a1a1a;
+    margin: 0;
+}
+
+.modal-card h2 {
+    font-size: 1.2rem;
+    color: #555;
+    margin: 0;
+    font-weight: 500;
+}
+
+.modal-card h4 {
+    font-size: 1rem;
+    color: #1a1a1a;
+    margin: 0;
+}
+
+.confirmation-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.confirmation-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: #F7F5F0;
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+}
+
+.conf-icon {
+    font-size: 1.2rem;
+    color: #1F5C45;
+    width: 24px;
+    text-align: center;
+}
+
+.conf-label {
+    font-size: 0.8rem;
+    color: #888;
+}
+
+.conf-value {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #1a1a1a;
+}
+
+.next-steps {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: #444;
+}
+
+.next-steps li i {
+    color: #1F5C45;
+    margin-right: 0.5rem;
+}
+
+.close-btn {
+    background: #1F5C45;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem;
+    font-size: 1rem;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 0.5rem;
+    transition: background 0.2s;
+}
+
+.close-btn:hover {
+    background: #174d38;
 }
