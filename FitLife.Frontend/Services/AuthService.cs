@@ -33,6 +33,26 @@ public class AuthService
     {
         await _js.InvokeVoidAsync("localStorage.removeItem", "jwt");
     }
+    
+    public async Task<bool> RegisterAsync(string fullName, string email, string password)
+    {
+        var response = await _http.PostAsJsonAsync("auth/register", new
+        {
+            fullName,
+            email,
+            password
+        });
+
+        if (!response.IsSuccessStatusCode)
+            return false;
+
+        var token = await response.Content.ReadFromJsonAsync<TokenResponse>();
+        if (token is null)
+            return false;
+
+        await _js.InvokeVoidAsync("localStorage.setItem", "jwt", token.AccessToken);
+        return true;
+    }
 
     public async Task<string?> GetTokenAsync()
     {

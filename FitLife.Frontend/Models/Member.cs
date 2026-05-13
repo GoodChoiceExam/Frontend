@@ -47,3 +47,14 @@ public class UpdateUserPreferenceRequest
     public bool CommunityActivity { get; set; }
     public bool MembershipAndPaymentMessages { get; set; }
 }
+
+public class CreateMemberRequest
+{
+    public string FullName { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public string PhoneNumber { get; set; } = string.Empty;
+    public string PrimaryCenter { get; set; } = string.Empty;
+    public List<string> FitnessGoals { get; set; } = [];
+    public List<string> TrainingInterests { get; set; } = [];
+    public string MembershipType { get; set; } = string.Empty;
+}

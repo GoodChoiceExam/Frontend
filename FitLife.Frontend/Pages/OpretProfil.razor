@@ -1,0 +1,351 @@
+@page "/opret-profil"
+@layout PublicLayout
+@using FitLife.Frontend.Models
+@using FitLife.Frontend.Services
+@inject AuthService AuthService
+@inject MembershipService MembershipService
+@inject NavigationManager Navigation
+
+<PageTitle>Opret profil | FitLife Digital</PageTitle>
+
+<div class="onboarding-page">
+    <div class="onboarding-container @(currentStep == 1 ? "onboarding-wide" : currentStep == 3 ? "narrow" : "")">
+        <header class="onboarding-header">
+            <div class="step-pill"><span></span>Trin @currentStep af 3</div>
+            <h1>@StepTitle</h1>
+            <p>@StepSubtitle</p>
+        </header>
+
+        @if (!string.IsNullOrWhiteSpace(errorMessage))
+        {
+            <p class="onboarding-error">@errorMessage</p>
+        }
+
+        @if (currentStep == 1)
+        {
+            <div class="profile-grid">
+                <section class="onboarding-card">
+                    <div class="field-stack">
+                        <label>
+                            <span>Fulde navn</span>
+                            <InputText class="onboarding-input" @bind-Value="fullName" placeholder="Sarah Nielsen" />
+                        </label>
+
+                        <label>
+                            <span>E-mail</span>
+                            <InputText class="onboarding-input" type="email" @bind-Value="email" placeholder="sarah@example.com" />
+                        </label>
+
+                        <label>
+                            <span>Adgangskode</span>
+                            <InputText class="onboarding-input" type="password" @bind-Value="password" placeholder="••••••••" />
+                        </label>
+
+                        <label>
+                            <span>Telefon</span>
+                            <InputText class="onboarding-input" type="tel" @bind-Value="phoneNumber" placeholder="+45 12 34 56 78" />
+                        </label>
+
+                        <label>
+                            <span>Primært center</span>
+                            <InputSelect class="onboarding-input" @bind-Value="primaryCenter">
+                                <option value="">Vælg center</option>
+                                <option value="Vesterbro">Vesterbro</option>
+                                <option value="Nørrebro">Nørrebro</option>
+                                <option value="Østerbro">Østerbro</option>
+                                <option value="AarhusC">Aarhus C</option>
+                                <option value="Kolding">Kolding</option>
+                            </InputSelect>
+                        </label>
+
+                        <button class="onboarding-primary" type="button" @onclick="ContinueFromProfile" disabled="@isSubmitting">
+                            @(isSubmitting ? "Opretter..." : "Fortsæt") <i class="bi bi-arrow-right"></i>
+                        </button>
+                    </div>
+                </section>
+
+                <aside class="benefits-column">
+                    <section class="access-card">
+                        <h2>Hvad får du adgang til?</h2>
+                        @foreach (var benefit in benefits)
+                        {
+                            <div class="benefit-row">
+                                <span><i class="bi bi-check-lg"></i></span>
+                                @benefit
+                            </div>
+                        }
+                    </section>
+
+                    <section class="secure-card">
+                        <div>🔒</div>
+                        <h3>Dine data er sikre</h3>
+                        <p>Vi beskytter din information og deler den aldrig med tredjeparter.</p>
+                    </section>
+                </aside>
+            </div>
+        }
+
+        @if (currentStep == 2)
+        {
+            <section class="choice-section">
+                <h2>Hvad er dine mål?</h2>
+                <div class="goal-grid">
+                    @foreach (var goal in goals)
+                    {
+                        <button class="choice-card @(selectedGoals.Contains(goal.Value) ? "selected" : "")" type="button" @onclick="() => Toggle(selectedGoals, goal.Value)">
+                            <i class="@goal.Icon"></i>
+                            <span>@goal.Label</span>
+                        </button>
+                    }
+                </div>
+            </section>
+
+            <section class="choice-section">
+                <h2>Hvilken slags træning interesserer dig?</h2>
+                <div class="interest-grid">
+                    @foreach (var interest in interests)
+                    {
+                        <button class="choice-card horizontal @(selectedInterests.Contains(interest.Value) ? "selected" : "")" type="button" @onclick="() => Toggle(selectedInterests, interest.Value)">
+                            <i class="@interest.Icon"></i>
+                            <span>@interest.Label</span>
+                        </button>
+                    }
+                </div>
+            </section>
+
+            <section class="choice-section">
+                <h2>Vælg dit medlemskab</h2>
+                <div class="membership-choice-grid">
+                    @foreach (var membership in memberships)
+                    {
+                        <button class="membership-choice @(selectedMembership == membership.Value ? "selected" : "")" type="button" @onclick="() => selectedMembership = membership.Value">
+                            @if (selectedMembership == membership.Value)
+                            {
+                                <span class="choice-check"><i class="bi bi-check-lg"></i></span>
+                            }
+
+                            <strong>@membership.Name</strong>
+                            <em>@membership.Price</em>
+
+                            @foreach (var feature in membership.Features)
+                            {
+                                <p><span></span>@feature</p>
+                            }
+                        </button>
+                    }
+                </div>
+            </section>
+
+            <div class="center-action">
+                <button class="onboarding-secondary" type="button" @onclick="PreviousStep">Tilbage</button>
+                <button class="onboarding-primary compact" type="button" @onclick="ContinueFromPreferences">
+                    Gem og fortsæt <i class="bi bi-arrow-right"></i>
+                </button>
+            </div>
+        }
+
+        @if (currentStep == 3)
+        {
+            <section class="onboarding-card notification-card">
+                <label class="onboarding-toggle-row">
+                    <span><strong>Påmindelser om hold</strong><small>Modtag påmindelser 2 timer før dine bookede hold</small></span>
+                    <InputCheckbox class="onboarding-toggle" @bind-Value="classReminders" />
+                </label>
+
+                <label class="onboarding-toggle-row">
+                    <span><strong>Livestream påmindelser</strong><small>Få besked når dine foretrukne instruktører går live</small></span>
+                    <InputCheckbox class="onboarding-toggle" @bind-Value="livestreamReminders" />
+                </label>
+
+                <label class="onboarding-toggle-row">
+                    <span><strong>Booking opdateringer</strong><small>Få besked om ændringer i dine bookinger</small></span>
+                    <InputCheckbox class="onboarding-toggle" @bind-Value="bookingUpdates" />
+                </label>
+
+                <label class="onboarding-toggle-row">
+                    <span><strong>Community aktivitet</strong><small>Hold dig opdateret om udfordringer og aktiviteter</small></span>
+                    <InputCheckbox class="onboarding-toggle" @bind-Value="communityActivity" />
+                </label>
+
+                <label class="onboarding-toggle-row">
+                    <span><strong>Medlemskab og betalinger</strong><small>Vigtige beskeder om dit medlemskab</small></span>
+                    <InputCheckbox class="onboarding-toggle" @bind-Value="membershipAndPaymentMessages" />
+                </label>
+            </section>
+
+            <div class="center-action">
+                <button class="onboarding-secondary" type="button" @onclick="PreviousStep">Tilbage</button>
+                <button class="onboarding-primary compact" type="button" @onclick="Finish" disabled="@isSubmitting">
+                    @(isSubmitting ? "Gemmer..." : "Fortsæt til platform") <i class="bi bi-arrow-right"></i>
+                </button>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private int currentStep = 1;
+    private bool isSubmitting;
+    private string? errorMessage;
+
+    private string fullName = string.Empty;
+    private string email = string.Empty;
+    private string password = string.Empty;
+    private string phoneNumber = string.Empty;
+    private string primaryCenter = string.Empty;
+
+    private readonly List<string> selectedGoals = [];
+    private readonly List<string> selectedInterests = [];
+    private string selectedMembership = string.Empty;
+
+    private bool classReminders = true;
+    private bool livestreamReminders = true;
+    private bool bookingUpdates = true;
+    private bool communityActivity;
+    private bool membershipAndPaymentMessages = true;
+
+    private string StepTitle => currentStep switch
+    {
+        1 => "Opret din profil",
+        2 => "Tilpas din oplevelse",
+        3 => "Notifikationer",
+        _ => string.Empty
+    };
+
+    private string StepSubtitle => currentStep switch
+    {
+        1 => "Kom i gang på under 2 minutter",
+        2 => "Hjælp os med at give dig de bedste anbefalinger",
+        3 => "Vælg hvilke notifikationer du vil modtage",
+        _ => string.Empty
+    };
+
+    private readonly string[] benefits =
+    [
+        "Ubegrænset adgang til alle hold",
+        "Livestream træning når det passer dig",
+        "Personlig træningsmål og anbefalinger",
+        "Community og udfordringer",
+        "Fremskridts tracking og badges",
+        "Eksklusiv adgang til partnerskaber"
+    ];
+
+    private readonly ChoiceItem[] goals =
+    [
+        new("GetStartedQuickly", "Kom i gang hurtigt", "bi bi-bullseye"),
+        new("FlexibleTraining", "Mere fleksibel træning", "bi bi-graph-up-arrow"),
+        new("Strength", "Styrke", "bi bi-tools"),
+        new("Conditioning", "Kondition", "bi bi-heart"),
+        new("ProgressOverview", "Overblik over fremskridt", "bi bi-graph-up-arrow"),
+        new("WeightLoss", "Vægttab", "bi bi-sliders")
+    ];
+
+    private readonly ChoiceItem[] interests =
+    [
+        new("Classes", "Holdtræning", "bi bi-people"),
+        new("HomeTraining", "Hjemmetræning", "bi bi-house"),
+        new("Swimming", "Svømning", "bi bi-water"),
+        new("PersonalTraining", "Personlig træning", "bi bi-person")
+    ];
+
+    private readonly MembershipOption[] memberships =
+    [
+        new("Basic", "Basic", "249 kr./måned", ["Adgang til 1 center", "Hold", "Online træning"]),
+        new("Plus", "Plus", "299 kr./måned", ["Adgang til alle centre", "Hold", "Online træning"]),
+        new("Premium", "Premium", "399 kr./måned", ["Adgang til alle centre", "Hold", "Online træning", "Svømmehal adgang inkluderet"])
+    ];
+
+    private async Task ContinueFromProfile()
+    {
+        errorMessage = null;
+
+        if (string.IsNullOrWhiteSpace(fullName) ||
+            string.IsNullOrWhiteSpace(email) ||
+            string.IsNullOrWhiteSpace(password) ||
+            string.IsNullOrWhiteSpace(phoneNumber) ||
+            string.IsNullOrWhiteSpace(primaryCenter))
+        {
+            errorMessage = "Udfyld navn, e-mail, adgangskode, telefon og primært center.";
+            return;
+        }
+
+        isSubmitting = true;
+
+        var created = await AuthService.RegisterAsync(fullName, email, password);
+        if (!created)
+        {
+            errorMessage = "Brugeren kunne ikke oprettes. Prøv en anden e-mail eller adgangskode.";
+            isSubmitting = false;
+            return;
+        }
+
+        isSubmitting = false;
+        currentStep = 2;
+    }
+
+    private void ContinueFromPreferences()
+    {
+        errorMessage = null;
+
+        if (selectedGoals.Count == 0 || selectedInterests.Count == 0 || string.IsNullOrWhiteSpace(selectedMembership))
+        {
+            errorMessage = "Vælg mindst ét mål, én træningsinteresse og et medlemskab.";
+            return;
+        }
+
+        currentStep = 3;
+    }
+
+    private async Task Finish()
+    {
+        errorMessage = null;
+        isSubmitting = true;
+
+        var member = await MembershipService.CreateMemberAsync(new CreateMemberRequest
+        {
+            FullName = fullName,
+            Email = email,
+            PhoneNumber = phoneNumber,
+            PrimaryCenter = primaryCenter,
+            FitnessGoals = selectedGoals,
+            TrainingInterests = selectedInterests,
+            MembershipType = selectedMembership
+        });
+
+        if (member is null)
+        {
+            errorMessage = "Medlemsprofilen kunne ikke oprettes.";
+            isSubmitting = false;
+            return;
+        }
+
+        await MembershipService.UpdatePreferencesAsync(new UpdateUserPreferenceRequest
+        {
+            FitnessGoals = selectedGoals,
+            TrainingInterests = selectedInterests,
+            MembershipType = selectedMembership,
+            ClassReminders = classReminders,
+            LivestreamReminders = livestreamReminders,
+            BookingUpdates = bookingUpdates,
+            CommunityActivity = communityActivity,
+            MembershipAndPaymentMessages = membershipAndPaymentMessages
+        });
+
+        Navigation.NavigateTo("/dashboard");
+    }
+
+    private void PreviousStep()
+    {
+        errorMessage = null;
+        currentStep--;
+    }
+
+    private static void Toggle(List<string> values, string value)
+    {
+        if (!values.Remove(value))
+            values.Add(value);
+    }
+
+    private sealed record ChoiceItem(string Value, string Label, string Icon);
+    private sealed record MembershipOption(string Value, string Name, string Price, string[] Features);
+}

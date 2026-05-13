@@ -53,4 +53,16 @@ public class MembershipService(HttpClient http, AuthService authService)
 
         return await response.Content.ReadFromJsonAsync<Member>();
     }
+    
+    public async Task<Member?> CreateMemberAsync(CreateMemberRequest request)
+    {
+        await SetAuthHeader();
+
+        var response = await http.PostAsJsonAsync("api/members", request);
+
+        if (!response.IsSuccessStatusCode)
+            return null;
+
+        return await response.Content.ReadFromJsonAsync<Member>();
+    }
 }
