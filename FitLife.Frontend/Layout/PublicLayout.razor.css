@@ -1,0 +1,3 @@
+/* Critical public layout styling is kept in wwwroot/css/app.css.
+   That file is already loaded in production, so public pages do not depend
+   on newly generated CSS isolation output. */

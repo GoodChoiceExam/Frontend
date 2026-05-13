@@ -1,0 +1,40 @@
+@inherits LayoutComponentBase
+@inject NavigationManager Navigation
+
+<div class="public-layout">
+    @if (!IsLoginPage)
+    {
+        <header class="public-header">
+            <nav class="public-nav" aria-label="Public navigation">
+                <a href="/" class="public-brand">
+                    <span class="public-logo">FL</span>
+                    <span>FitLife Digital</span>
+                </a>
+
+                <div class="public-actions">
+                    <a class="public-link" href="/login">Log ind</a>
+                    <a class="public-cta" href="/opret-profil">Kom i gang</a>
+                </div>
+            </nav>
+        </header>
+    }
+
+    <main class="public-main @(IsLoginPage ? "public-main-login" : null)">
+        @Body
+    </main>
+</div>
+
+@code {
+    private bool IsLoginPage
+    {
+        get
+        {
+            var path = Navigation
+                .ToBaseRelativePath(Navigation.Uri)
+                .Split('?', '#')[0]
+                .Trim('/');
+
+            return string.Equals(path, "login", StringComparison.OrdinalIgnoreCase);
+        }
+    }
+}

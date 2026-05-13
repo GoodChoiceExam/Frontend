@@ -1,0 +1,114 @@
+﻿@page "/dashboard"
+@using FitLife.Frontend.Models
+@using FitLife.Frontend.Services
+@inject ClassesService ClassesService
+@inject LivestreamService LivestreamService
+@inject AuthService AuthService
+@inject NavigationManager Nav
+
+<div class="dashboard">
+
+    <div class="welcome">
+        <h1>Godmorgen, @userName</h1>
+        <p class="welcome-sub">Velkommen tilbage. Klar til dagens træning?</p>
+    </div>
+
+    <div class="cards-row">
+        <div class="card card-green">
+            <div class="card-top">
+                <div class="card-icon"><i class="bi bi-calendar3"></i></div>
+                @if (nextClass is not null && IsToday(nextClass.StartTime))
+                {
+                    <span class="badge-today">I dag</span>
+                }
+            </div>
+            <div class="card-body-content">
+                <p class="card-label">Dit næste hold</p>
+                @if (nextClass is null)
+                {
+                    <h2>Ingen kommende hold</h2>
+                }
+                else
+                {
+                    <h2>@nextClass.Title</h2>
+                    <div class="card-meta">
+                        <span><i class="bi bi-clock"></i> @nextClass.StartTime.ToLocalTime().ToString("HH:mm")</span>
+                        <span><i class="bi bi-geo-alt"></i> @nextClass.Location</span>
+                    </div>
+                }
+            </div>
+            <button class="card-btn" @onclick='() => Nav.NavigateTo("/holdoversigt")'>Se detaljer</button>
+        </div>
+
+        <div class="card card-white">
+            <div class="card-top">
+                <div class="card-icon card-icon-light"><i class="bi bi-camera-video"></i></div>
+                @if (liveStream?.IsLive == true)
+                {
+                    <span class="badge-live"><i class="bi bi-circle-fill"></i> LIVE</span>
+                }
+            </div>
+            <div class="card-body-content">
+                <p class="card-label">Anbefalet livestream</p>
+                @if (liveStream is null)
+                {
+                    <h2 class="card-title-green">Ingen aktiv livestream</h2>
+                }
+                else
+                {
+                    <h2 class="card-title-green">@liveStream.Title</h2>
+                    <p class="card-sub">Med @liveStream.Instructor • @liveStream.DurationMinutes min</p>
+                }
+            </div>
+            <button class="card-btn card-btn-outline" @onclick='() => Nav.NavigateTo("/livestream")'>
+                <i class="bi bi-play"></i> Deltag nu
+            </button>
+        </div>
+    </div>
+
+    <div class="quick-actions">
+        <h3>Hurtige handlinger</h3>
+        <div class="actions-row">
+            <div class="action-card" @onclick='() => Nav.NavigateTo("/holdoversigt")'>
+                <div class="action-icon action-icon-green"><i class="bi bi-calendar3"></i></div>
+                <span>Book hold</span>
+            </div>
+            <div class="action-card" @onclick='() => Nav.NavigateTo("/traeningslog")'>
+                <div class="action-icon action-icon-sage"><i class="bi bi-graph-up-arrow"></i></div>
+                <span>Træningslog</span>
+            </div>
+            <div class="action-card" @onclick='() => Nav.NavigateTo("/personlig-traening")'>
+                <div class="action-icon action-icon-brown"><i class="bi bi-person-badge"></i></div>
+                <span>Book personlig træner</span>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@code {
+    private string userName = "der";
+    private TrainingClass? nextClass;
+    private LivestreamSession? liveStream;
+
+    protected override async Task OnInitializedAsync()
+    {
+        userName = await AuthService.GetUserNameAsync() ?? "der";
+
+        var classes = await ClassesService.GetAllAsync();
+        nextClass = classes
+            .Where(c => c.StartTime > DateTime.UtcNow)
+            .OrderBy(c => c.StartTime)
+            .FirstOrDefault();
+
+        liveStream = await LivestreamService.GetLiveNowAsync();
+        if (liveStream is null)
+        {
+            var all = await LivestreamService.GetAllAsync();
+            liveStream = all.OrderBy(l => l.StartTime).FirstOrDefault();
+        }
+    }
+
+    private bool IsToday(DateTime dt) =>
+        dt.ToLocalTime().Date == DateTime.Today;
+}

@@ -31,7 +31,7 @@
                     @foreach (var program in programs)
                     {
                         <div class="tl-program-card" @onclick="() => SelectProgram(program)">
-                            <div class="tl-program-icon">💪</div>
+                            <div class="tl-program-icon"><i class="bi bi-lightning-charge"></i></div>
                             <div class="tl-program-info">
                                 <h3>@program.Name</h3>
                                 <p>@program.ExerciseCount øvelser</p>
@@ -69,9 +69,9 @@
                     {
                         <div class="tl-exercise-row">
                             <input type="text" @bind="ex.Name" placeholder="Øvelsens navn" class="tl-input" />
-                            <input type="number" @bind="ex.Sets" class="tl-input tl-input-sm" />
-                            <input type="number" @bind="ex.Reps" class="tl-input tl-input-sm" />
-                            <input type="number" @bind="ex.WeightKg" class="tl-input tl-input-sm" />
+                            <input type="number" @bind="ex.Sets" min="1" class="tl-input tl-input-sm" />
+                            <input type="number" @bind="ex.Reps" min="1" class="tl-input tl-input-sm" />
+                            <input type="number" @bind="ex.WeightKg" min="0.5" step="0.5" class="tl-input tl-input-sm" />
                             <button class="tl-remove-btn" @onclick="() => newExercises.Remove(ex)">✕</button>
                         </div>
                     }
@@ -94,34 +94,83 @@
         <div class="tl-card">
             <div class="tl-log-header">
                 <div>
-                    <h2>@selectedProgram.Name</h2>
-                    <p class="tl-subtitle">Log din træning</p>
+                    @if (isEditingName)
+                    {
+                        <input type="text" @bind="editProgramName" class="tl-input" />
+                        <button class="tl-primary-btn" @onclick="SaveProgramName">Gem navn</button>
+                        <button class="tl-secondary-btn" @onclick="() => isEditingName = false">Annuller</button>
+                    }
+                    else
+                    {
+                        <h2>@selectedProgram.Name <button class="tl-edit-btn" @onclick="StartEditName"><i class="bi bi-pencil"></i></button></h2>
+                        <p class="tl-subtitle">Log din træning</p>
+                    }
                 </div>
                 <button class="tl-secondary-btn" @onclick='() => activeView = "overview"'>Tilbage til oversigt</button>
             </div>
 
-            @if (selectedProgram.Exercises.Any())
-            {
-                <div class="tl-exercise-table-header">
-                    <span>Øvelse</span><span>Sæt</span><span>Reps</span><span>Kg</span>
+            <div class="tl-exercise-section">
+                <div class="tl-exercise-header">
+                    <h3>Øvelser</h3>
+                    <button class="tl-add-exercise-btn" @onclick="StartAddExercise">+ Tilføj øvelse</button>
                 </div>
-                @foreach (var ex in selectedProgram.Exercises)
+
+                @if (selectedProgram.Exercises.Any() || isAddingExercise)
                 {
-                    <div class="tl-exercise-log-row">
-                        <span class="tl-exercise-name">@ex.Name</span>
-                        <span>@ex.Sets</span>
-                        <span>@ex.Reps</span>
-                        <span>@(ex.WeightKg?.ToString() ?? "—")</span>
+                    <div class="tl-exercise-table-header">
+                        <span>Øvelse</span><span>Sæt</span><span>Reps</span><span>Kg</span><span></span>
                     </div>
                 }
-            }
-            else
-            {
-                <p class="tl-loading">Ingen øvelser i dette program.</p>
-            }
+
+                @foreach (var ex in selectedProgram.Exercises)
+                {
+                    @if (editingExerciseId == ex.Id)
+                    {
+                        <div class="tl-exercise-row">
+                            <input type="text" @bind="editExercise.Name" class="tl-input" />
+                            <input type="number" @bind="editExercise.Sets" min="1" class="tl-input tl-input-sm" />
+                            <input type="number" @bind="editExercise.Reps" min="1" class="tl-input tl-input-sm" />
+                            <input type="number" @bind="editExercise.WeightKg" min="0.5" step="0.5" class="tl-input tl-input-sm" />
+                            <div style="display:flex; gap:0.25rem; align-items:center;">
+                                <button class="tl-save-btn" @onclick="() => SaveExercise(ex.Id)"><i class="bi bi-check-lg"></i></button>
+                                <button class="tl-remove-btn" @onclick="CancelEditExercise">✕</button>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="tl-exercise-log-row">
+                            <span class="tl-exercise-name">@ex.Name</span>
+                            <span>@ex.Sets</span>
+                            <span>@ex.Reps</span>
+                            <span>@(ex.WeightKg?.ToString() ?? "—")</span>
+                            <button class="tl-edit-btn" @onclick="() => StartEditExercise(ex)"><i class="bi bi-pencil"></i></button>
+                        </div>
+                    }
+                }
+
+                @if (isAddingExercise)
+                {
+                    <div class="tl-exercise-row">
+                        <input type="text" @bind="newExerciseName" placeholder="Øvelsens navn" class="tl-input" />
+                        <input type="number" @bind="newExerciseSets" min="1" class="tl-input tl-input-sm" />
+                        <input type="number" @bind="newExerciseReps" min="1" class="tl-input tl-input-sm" />
+                        <input type="number" @bind="newExerciseWeightKg" min="0.5" step="0.5" class="tl-input tl-input-sm" />
+                        <div style="display:flex; gap:0.25rem; align-items:center;">
+                            <button class="tl-save-btn" @onclick="SaveNewExercise"><i class="bi bi-check-lg"></i></button>
+                            <button class="tl-remove-btn" @onclick="() => isAddingExercise = false">✕</button>
+                        </div>
+                    </div>
+                }
+
+                @if (!selectedProgram.Exercises.Any() && !isAddingExercise)
+                {
+                    <p class="tl-loading">Ingen øvelser i dette program.</p>
+                }
+            </div>
 
             <div class="tl-actions">
-                <button class="tl-primary-btn" @onclick='() => activeView = "overview"'>Gem træningslog</button>
+                <button class="tl-primary-btn" @onclick='() => activeView = "overview"'>Tilbage til oversigt</button>
             </div>
         </div>
     }
@@ -136,15 +185,28 @@
     private string newProgramName = string.Empty;
     private List<Exercise> newExercises = [];
 
+    private bool isEditingName = false;
+    private string editProgramName = string.Empty;
+
+    private Guid? editingExerciseId = null;
+    private Exercise editExercise = new();
+
+    private bool isAddingExercise = false;
+    private string newExerciseName = string.Empty;
+    private int newExerciseSets = 3;
+    private int newExerciseReps = 10;
+    private decimal? newExerciseWeightKg = null;
+
     protected override async Task OnInitializedAsync()
     {
         programs = await TrainingLogService.GetProgramsAsync();
         isLoading = false;
     }
 
-    private void SelectProgram(WorkoutProgram program)
+    private async Task SelectProgram(WorkoutProgram program)
     {
-        selectedProgram = program;
+        programs = await TrainingLogService.GetProgramsAsync();
+        selectedProgram = programs.FirstOrDefault(p => p.Id == program.Id);
         activeView = "log";
     }
 
@@ -168,5 +230,78 @@
             newExercises = [];
             activeView = "overview";
         }
+    }
+
+    private void StartEditName()
+    {
+        editProgramName = selectedProgram!.Name;
+        isEditingName = true;
+    }
+
+    private async Task SaveProgramName()
+    {
+        if (selectedProgram is null || string.IsNullOrWhiteSpace(editProgramName)) return;
+
+        var updated = await TrainingLogService.UpdateProgramNameAsync(selectedProgram.Id, editProgramName);
+        if (updated is not null)
+        {
+            selectedProgram.Name = updated.Name;
+            programs = await TrainingLogService.GetProgramsAsync();
+        }
+        isEditingName = false;
+    }
+
+    private void StartEditExercise(Exercise ex)
+    {
+        editingExerciseId = ex.Id;
+        editExercise = new Exercise
+        {
+            Id = ex.Id,
+            Name = ex.Name,
+            Sets = ex.Sets,
+            Reps = ex.Reps,
+            WeightKg = ex.WeightKg
+        };
+    }
+
+    private async Task SaveExercise(Guid exerciseId)
+    {
+        if (selectedProgram is null) return;
+
+        var updated = await TrainingLogService.UpdateExerciseAsync(
+            selectedProgram.Id, exerciseId,
+            editExercise.Name, editExercise.Sets, editExercise.Reps, editExercise.WeightKg);
+
+        if (updated is not null)
+            selectedProgram = updated;
+
+        editingExerciseId = null;
+    }
+
+    private void CancelEditExercise()
+    {
+        editingExerciseId = null;
+    }
+
+    private void StartAddExercise()
+    {
+        isAddingExercise = true;
+        newExerciseName = string.Empty;
+        newExerciseSets = 3;
+        newExerciseReps = 10;
+        newExerciseWeightKg = null;
+    }
+
+    private async Task SaveNewExercise()
+    {
+        if (selectedProgram is null || string.IsNullOrWhiteSpace(newExerciseName)) return;
+
+        var updated = await TrainingLogService.AddExerciseAsync(
+            selectedProgram.Id, newExerciseName, newExerciseSets, newExerciseReps, newExerciseWeightKg);
+
+        if (updated is not null)
+            selectedProgram = updated;
+
+        isAddingExercise = false;
     }
 }

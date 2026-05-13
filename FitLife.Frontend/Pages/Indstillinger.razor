@@ -1,0 +1,364 @@
+@page "/indstillinger"
+@using System.Globalization
+@using FitLife.Frontend.Models
+@using FitLife.Frontend.Services
+@inject MembershipService MembershipService
+@inject AuthService AuthService
+@inject NavigationManager Navigation
+
+<div class="settings-page">
+    <div class="settings-shell">
+        <header class="settings-header">
+            <h1>Indstillinger</h1>
+            <p>Administrer din profil og præferencer</p>
+        </header>
+
+        @if (isLoading)
+        {
+            <section class="settings-card">
+                <p class="settings-muted">Henter medlemsprofil...</p>
+            </section>
+        }
+        else if (!string.IsNullOrWhiteSpace(errorMessage))
+        {
+            <section class="settings-card">
+                <p class="settings-error">@errorMessage</p>
+            </section>
+        }
+        else
+        {
+            <nav class="settings-tabs" aria-label="Indstillinger">
+                <button class="settings-tab @(activeTab == SettingsTab.Profile ? "active" : "")" type="button" @onclick="() => activeTab = SettingsTab.Profile">
+                    <i class="bi bi-person"></i>
+                    Profil
+                </button>
+                <button class="settings-tab @(activeTab == SettingsTab.Membership ? "active" : "")" type="button" @onclick="() => activeTab = SettingsTab.Membership">
+                    <i class="bi bi-credit-card"></i>
+                    Medlemskab
+                </button>
+                <button class="settings-tab @(activeTab == SettingsTab.Notifications ? "active" : "")" type="button" @onclick="() => activeTab = SettingsTab.Notifications">
+                    <i class="bi bi-bell"></i>
+                    Notifikationer
+                </button>
+            </nav>
+
+            @if (!string.IsNullOrWhiteSpace(successMessage))
+            {
+                <p class="settings-success">@successMessage</p>
+            }
+
+            @if (activeTab == SettingsTab.Profile)
+            {
+                <section class="settings-stack">
+                    <div class="settings-card">
+                        <div class="profile-top">
+                            <div class="profile-avatar">@Initials</div>
+                            <div class="profile-info">
+                                <h2>@profile.FullName</h2>
+                                <p>@profile.Email</p>
+                                <button class="secondary-button" type="button">Skift profilbillede</button>
+                            </div>
+                        </div>
+
+                        <div class="profile-form">
+                            <label>
+                                <span>Fulde navn</span>
+                                <InputText class="settings-input" @bind-Value="profile.FullName" />
+                            </label>
+
+                            <label>
+                                <span>E-mail</span>
+                                <InputText class="settings-input" @bind-Value="profile.Email" readonly />
+                            </label>
+
+                            <label>
+                                <span>Telefon</span>
+                                <InputText class="settings-input" @bind-Value="profile.PhoneNumber" />
+                            </label>
+
+                            <label>
+                                <span>Primært center</span>
+                                <InputSelect class="settings-input" @bind-Value="profile.PrimaryCenter">
+                                    <option value="Vesterbro">Vesterbro</option>
+                                    <option value="Nørrebro">Nørrebro</option>
+                                    <option value="Østerbro">Østerbro</option>
+                                    <option value="AarhusC">Aarhus C</option>
+                                    <option value="Kolding">Kolding</option>
+                                </InputSelect>
+                            </label>
+                        </div>
+
+                        <div class="card-footer">
+                            <button class="primary-button" type="button" @onclick="SaveProfile" disabled="@isSaving">
+                                @(isSaving ? "Gemmer..." : "Gem ændringer")
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="settings-card logout-card">
+                        <div class="logout-copy">
+                            <div class="logout-icon">
+                                <i class="bi bi-box-arrow-right"></i>
+                            </div>
+                            <div>
+                                <h3>Log ud</h3>
+                                <p>Log ud af din konto</p>
+                            </div>
+                        </div>
+
+                        <button class="logout-button" type="button" @onclick="Logout">Log ud</button>
+                    </div>
+                </section>
+            }
+
+            @if (activeTab == SettingsTab.Membership)
+            {
+                <section class="membership-card">
+                    <div class="membership-head">
+                        <div>
+                            <h2>@MembershipTitle</h2>
+                            <p>Aktiv siden @FormatDate(member?.StartDate)</p>
+                        </div>
+                        <span>@FormatStatus(member?.MembershipStatus)</span>
+                    </div>
+
+                    <div class="membership-grid">
+                        <div class="membership-stat">
+                            <i class="bi bi-calendar2-week"></i>
+                            <p>Næste betaling</p>
+                            <strong>@NextPaymentDate</strong>
+                        </div>
+                        <div class="membership-stat">
+                            <i class="bi bi-credit-card"></i>
+                            <p>Månedlig pris</p>
+                            <strong>@MonthlyPrice</strong>
+                        </div>
+                        <div class="membership-stat">
+                            <i class="bi bi-shield-check"></i>
+                            <p>Status</p>
+                            <strong>@MembershipAccessText</strong>
+                        </div>
+                    </div>
+
+                    <div class="benefit-list">
+                        <div><span></span>Ubegrænset adgang til alle centre</div>
+                        <div><span></span>Alle hold og livestream-klasser</div>
+                        <div><span></span>Adgang til partnerfaciliteter</div>
+                        <div><span></span>Fremskridts tracking og community</div>
+                    </div>
+
+                    <div class="membership-footer">
+                        <button class="membership-button" type="button">Rediger abonnement</button>
+                    </div>
+                </section>
+            }
+
+            @if (activeTab == SettingsTab.Notifications)
+            {
+                <section class="settings-card">
+                    <div class="notification-head">
+                        <h2>Notifikationsindstillinger</h2>
+                        <p>Vælg hvilke notifikationer du vil modtage</p>
+                    </div>
+
+                    <div class="notification-list">
+                        <label class="notification-row">
+                            <span>
+                                <strong>Påmindelser om hold</strong>
+                                <small>Modtag påmindelser 2 timer før dine bookede hold</small>
+                            </span>
+                            <InputCheckbox class="toggle-input" @bind-Value="preferences.ClassReminders" />
+                        </label>
+
+                        <label class="notification-row">
+                            <span>
+                                <strong>Udfordrings-opdateringer</strong>
+                                <small>Hold dig opdateret om dine aktive udfordringer</small>
+                            </span>
+                            <InputCheckbox class="toggle-input" @bind-Value="preferences.CommunityActivity" />
+                        </label>
+
+                        <label class="notification-row">
+                            <span>
+                                <strong>Ugentlig fremskridtsrapport</strong>
+                                <small>Få en oversigt over din uges træning hver søndag</small>
+                            </span>
+                            <InputCheckbox class="toggle-input" @bind-Value="preferences.BookingUpdates" />
+                        </label>
+
+                        <label class="notification-row">
+                            <span>
+                                <strong>Nye hold</strong>
+                                <small>Få besked når der tilføjes nye hold til programmet</small>
+                            </span>
+                            <InputCheckbox class="toggle-input" @bind-Value="preferences.LivestreamReminders" />
+                        </label>
+
+                        <label class="notification-row">
+                            <span>
+                                <strong>Tilbud og nyheder</strong>
+                                <small>Modtag information om særlige tilbud og events</small>
+                            </span>
+                            <InputCheckbox class="toggle-input" @bind-Value="preferences.MembershipAndPaymentMessages" />
+                        </label>
+                    </div>
+
+                    <div class="card-footer">
+                        <button class="primary-button" type="button" @onclick="SavePreferences" disabled="@isSaving">
+                            @(isSaving ? "Gemmer..." : "Gem ændringer")
+                        </button>
+                    </div>
+                </section>
+            }
+        }
+    </div>
+</div>
+
+@code {
+    private SettingsTab activeTab = SettingsTab.Profile;
+    private Member? member;
+    private bool isLoading = true;
+    private bool isSaving;
+    private string? errorMessage;
+    private string? successMessage;
+
+    private readonly UpdateMemberRequest profile = new();
+    private readonly UpdateUserPreferenceRequest preferences = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        member = await MembershipService.GetCurrentMemberAsync();
+
+        if (member is null)
+        {
+            errorMessage = "Der blev ikke fundet en medlemsprofil for den indloggede bruger.";
+            isLoading = false;
+            return;
+        }
+
+        profile.FullName = member.FullName;
+        profile.Email = member.Email;
+        profile.PhoneNumber = member.PhoneNumber;
+        profile.PrimaryCenter = member.PrimaryCenter;
+
+        preferences.FitnessGoals = member.UserPreference?.FitnessGoals ?? [];
+        preferences.TrainingInterests = member.UserPreference?.TrainingInterests ?? [];
+        preferences.MembershipType = member.UserPreference?.MembershipType ?? "Premium";
+        preferences.ClassReminders = member.UserPreference?.ClassReminders ?? true;
+        preferences.LivestreamReminders = member.UserPreference?.LivestreamReminders ?? true;
+        preferences.BookingUpdates = member.UserPreference?.BookingUpdates ?? true;
+        preferences.CommunityActivity = member.UserPreference?.CommunityActivity ?? false;
+        preferences.MembershipAndPaymentMessages = member.UserPreference?.MembershipAndPaymentMessages ?? false;
+
+        isLoading = false;
+    }
+
+    private async Task SaveProfile()
+    {
+        isSaving = true;
+        successMessage = null;
+        errorMessage = null;
+
+        var updated = await MembershipService.UpdateMemberAsync(profile);
+
+        if (updated is null)
+            errorMessage = "Profilen kunne ikke gemmes.";
+        else
+        {
+            member = updated;
+            successMessage = "Profilen er gemt.";
+        }
+
+        isSaving = false;
+    }
+
+    private async Task SavePreferences()
+    {
+        isSaving = true;
+        successMessage = null;
+        errorMessage = null;
+
+        var updated = await MembershipService.UpdatePreferencesAsync(preferences);
+
+        if (updated is null)
+            errorMessage = "Notifikationer kunne ikke gemmes.";
+        else
+        {
+            member = updated;
+            successMessage = "Notifikationer er gemt.";
+        }
+
+        isSaving = false;
+    }
+
+    private async Task Logout()
+    {
+        await AuthService.LogoutAsync();
+        Navigation.NavigateTo("/home");
+    }
+
+    private string Initials
+    {
+        get
+        {
+            var parts = profile.FullName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length == 0)
+                return "FL";
+
+            if (parts.Length == 1)
+                return parts[0][0].ToString().ToUpperInvariant();
+
+            return $"{parts[0][0]}{parts[^1][0]}".ToUpperInvariant();
+        }
+    }
+
+    private string MembershipTitle => $"{FormatMembershipType(preferences.MembershipType)} Medlemskab";
+
+    private string MonthlyPrice => preferences.MembershipType switch
+    {
+        "Basic" => "249 kr.",
+        "Plus" => "349 kr.",
+        "Premium" => "449 kr.",
+        _ => "449 kr."
+    };
+
+    private string MembershipAccessText => member?.MembershipStatus == "Active" ? "Fuld adgang" : FormatStatus(member?.MembershipStatus);
+
+    private string NextPaymentDate => member is null
+        ? "-"
+        : FormatDate(new DateTime(DateTime.Today.Year, DateTime.Today.Month, Math.Min(member.StartDate.Day, 28)).AddMonths(1));
+
+    private static string FormatMembershipType(string? membershipType)
+    {
+        return membershipType switch
+        {
+            "Basic" => "Basic",
+            "Plus" => "Plus",
+            "Premium" => "Premium",
+            _ => "Premium"
+        };
+    }
+
+    private static string FormatStatus(string? status)
+    {
+        return status switch
+        {
+            "Active" => "Aktiv",
+            "Paused" => "Sat på pause",
+            "Cancelled" => "Opsagt",
+            _ => "Aktiv"
+        };
+    }
+
+    private static string FormatDate(DateTime? date)
+    {
+        return date is null ? "-" : date.Value.ToLocalTime().ToString("d. MMMM yyyy", new CultureInfo("da-DK"));
+    }
+
+    private enum SettingsTab
+    {
+        Profile,
+        Membership,
+        Notifications
+    }
+}

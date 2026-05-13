@@ -1,0 +1,119 @@
+@page "/community"
+@using FitLife.Frontend.Models
+@using FitLife.Frontend.Services
+@inject CommunityService CommunityService
+@inject AuthService AuthService
+
+@if (community is null)
+{
+    <p>Henter community...</p>
+}
+else
+{
+    <div class="community-page">
+        <div class="community-header">
+            <h1>Community</h1>
+            <p class="community-subtitle">Dit lokale community til at finde træningspartnere og dele oplevelser</p>
+        </div>
+
+        <div class="members-banner">
+            <div class="members-banner-left">
+                <div class="members-icon">
+                    <i class="bi bi-people"></i>
+                </div>
+                <div>
+                    <div class="members-label">Medlemmer i centret nu</div>
+                    <div class="members-count"><span>42</span> medlemmer</div>
+                </div>
+            </div>
+            <span class="members-status">Roligt</span>
+        </div>
+
+        <div class="new-post-card">
+            <h3>Skriv et opslag</h3>
+            <textarea @bind="newPostContent" placeholder="Del en besked med gruppen..." rows="3"></textarea>
+            <div class="new-post-actions">
+                <button class="send-btn" @onclick="SubmitPost" disabled="@isSubmitting">
+                    <i class="bi bi-send"></i>
+                    @(isSubmitting ? "Sender..." : "Send opslag")
+                </button>
+            </div>
+        </div>
+
+        <div class="posts-section">
+            <h2>Opslag fra gruppen</h2>
+
+            @if (posts is null)
+            {
+                <p>Henter indlæg...</p>
+            }
+            else if (!posts.Any())
+            {
+                <p class="no-posts">Ingen indlæg endnu. Vær den første!</p>
+            }
+            else
+            {
+                @foreach (var post in posts.OrderByDescending(p => p.CreatedAt))
+                {
+                    <div class="post-card">
+                        <div class="post-left">
+                            <div class="avatar">@GetInitials(post.AuthorName)</div>
+                        </div>
+                        <div class="post-body">
+                            <div class="post-header">
+                                <strong>@post.AuthorName</strong>
+                                <span class="post-time">@GetRelativeTime(post.CreatedAt)</span>
+                            </div>
+                            <p>@post.Content</p>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+}
+
+@code {
+    private CenterCommunity? community;
+    private List<CommunityPost>? posts;
+    private string newPostContent = string.Empty;
+    private bool isSubmitting = false;
+    private bool isLoggedIn = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        isLoggedIn = await AuthService.IsLoggedInAsync();
+        var communities = await CommunityService.GetCommunitiesAsync();
+        community = communities.FirstOrDefault();
+        if (community is not null)
+            posts = await CommunityService.GetPostsAsync(community.Id);
+    }
+
+    private async Task SubmitPost()
+    {
+        if (string.IsNullOrWhiteSpace(newPostContent) || community is null)
+            return;
+
+        isSubmitting = true;
+        await CommunityService.CreatePostAsync(community.Id, newPostContent);
+        newPostContent = string.Empty;
+        posts = await CommunityService.GetPostsAsync(community.Id);
+        isSubmitting = false;
+    }
+
+    private string GetInitials(string name)
+    {
+        var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length >= 2)
+            return $"{parts[0][0]}{parts[1][0]}".ToUpper();
+        return name.Length > 0 ? name[0].ToString().ToUpper() : "?";
+    }
+
+    private string GetRelativeTime(DateTime utcTime)
+    {
+        var diff = DateTime.UtcNow - utcTime;
+        if (diff.TotalMinutes < 60) return $"{(int)diff.TotalMinutes} min siden";
+        if (diff.TotalHours < 24) return $"{(int)diff.TotalHours} timer siden";
+        return $"{(int)diff.TotalDays} dag{((int)diff.TotalDays == 1 ? "" : "e")} siden";
+    }
+}
