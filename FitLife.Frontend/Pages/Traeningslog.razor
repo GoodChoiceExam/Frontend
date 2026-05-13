@@ -203,9 +203,10 @@
         isLoading = false;
     }
 
-    private void SelectProgram(WorkoutProgram program)
+    private async Task SelectProgram(WorkoutProgram program)
     {
-        selectedProgram = program;
+        programs = await TrainingLogService.GetProgramsAsync();
+        selectedProgram = programs.FirstOrDefault(p => p.Id == program.Id);
         activeView = "log";
     }
 
