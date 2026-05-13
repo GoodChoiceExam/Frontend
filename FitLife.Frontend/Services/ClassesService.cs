@@ -18,4 +18,11 @@ public class ClassesService(HttpClient http, AuthService authService)
         await SetAuthHeader();
         return await http.GetFromJsonAsync<List<TrainingClass>>("api/classes") ?? [];
     }
+
+    public async Task<bool> CreateClassAsync(object request)
+    {
+        await SetAuthHeader();
+        var response = await http.PostAsJsonAsync("api/classes", request);
+        return response.IsSuccessStatusCode;
+    }
 }

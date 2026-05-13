@@ -1,0 +1,133 @@
+@page "/opret-hold"
+@using FitLife.Frontend.Services
+@inject ClassesService ClassesService
+@inject AuthService Auth
+@inject NavigationManager Nav
+
+@if (!_isTrainer)
+{
+    <p>Du har ikke adgang til denne side.</p>
+}
+else
+{
+    <div class="opret-hold-page">
+        <h1>Opret nyt hold</h1>
+
+        @if (!string.IsNullOrEmpty(_message))
+        {
+            <p class="@(_success ? "success-msg" : "error-msg")">@_message</p>
+        }
+
+        <div class="opret-hold-card">
+            <EditForm Model="_model" OnValidSubmit="HandleSubmit">
+                <DataAnnotationsValidator />
+
+                <div class="form-group">
+                    <label>Titel</label>
+                    <InputText @bind-Value="_model.Title" />
+                </div>
+                <div class="form-group">
+                    <label>Beskrivelse</label>
+                    <InputTextArea @bind-Value="_model.Description" />
+                </div>
+                <div class="form-group">
+                    <label>Kategori</label>
+                    <InputSelect @bind-Value="_model.Category">
+                        <option value="Yoga">Yoga</option>
+                        <option value="HIIT">HIIT</option>
+                        <option value="Strength">Strength</option>
+                        <option value="Mobility">Mobility</option>
+                    </InputSelect>
+                </div>
+                <div class="form-group">
+                    <label>Sværhedsgrad</label>
+                    <InputSelect @bind-Value="_model.DifficultyLevel">
+                        <option value="Beginner">Beginner</option>
+                        <option value="Intermediate">Intermediate</option>
+                        <option value="Advanced">Advanced</option>
+                    </InputSelect>
+                </div>
+                <div class="form-group">
+                    <label>Starttidspunkt</label>
+                    <InputDate Type="InputDateType.DateTimeLocal" @bind-Value="_model.StartTime" />
+                </div>
+                <div class="form-group">
+                    <label>Sluttidspunkt</label>
+                    <InputDate Type="InputDateType.DateTimeLocal" @bind-Value="_model.EndTime" />
+                </div>
+                <div class="form-group">
+                    <label>Lokation</label>
+                    <InputSelect @bind-Value="_model.Location">
+                        <option value="Vesterbro">Vesterbro</option>
+                        <option value="Nørrebro">Nørrebro</option>
+                        <option value="Østerbro">Østerbro</option>
+                    </InputSelect>
+                </div>
+                <div class="form-group">
+                    <label>Kapacitet</label>
+                    <InputNumber @bind-Value="_model.Capacity" />
+                </div>
+                <div class="form-group">
+                    <label>Træner ID</label>
+                    <InputText @bind-Value="_model.TrainerId" />
+                </div>
+
+                <button type="submit" class="submit-btn" disabled="@_loading">
+                    @(_loading ? "Opretter..." : "Opret hold")
+                </button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+@code {
+    private bool _isTrainer;
+    private bool _loading;
+    private bool _success;
+    private string? _message;
+    private readonly HoldModel _model = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var role = await Auth.GetRoleAsync();
+        _isTrainer = role == "Trainer";
+        if (!_isTrainer) Nav.NavigateTo("/");
+    }
+
+    private async Task HandleSubmit()
+    {
+        _loading = true;
+        _message = null;
+
+        var success = await ClassesService.CreateClassAsync(new
+        {
+            title = _model.Title,
+            description = _model.Description,
+            category = _model.Category,
+            difficultyLevel = _model.DifficultyLevel,
+            startTime = _model.StartTime,
+            endTime = _model.EndTime,
+            location = _model.Location,
+            capacity = _model.Capacity,
+            availableSpots = _model.Capacity,
+            trainerId = Guid.Parse(_model.TrainerId)
+        });
+
+        _success = success;
+        _message = success ? "Hold oprettet!" : "Noget gik galt. Prøv igen.";
+        _loading = false;
+    }
+
+    private class HoldModel
+    {
+        public string Title { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public string Category { get; set; } = "Yoga";
+        public string DifficultyLevel { get; set; } = "Beginner";
+        public DateTime StartTime { get; set; } = DateTime.Now;
+        public DateTime EndTime { get; set; } = DateTime.Now.AddHours(1);
+        public string Location { get; set; } = "Vesterbro";
+        public int Capacity { get; set; } = 20;
+        public string TrainerId { get; set; } = string.Empty;
+    }
+}

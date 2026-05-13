@@ -18,4 +18,11 @@ public class TrainerService(HttpClient http, AuthService authService)
         await SetAuthHeader();
         return await http.GetFromJsonAsync<List<PersonalTrainer>>("api/trainers") ?? [];
     }
+    
+    public async Task<bool> CreateTrainerAsync(object request)
+    {
+        await SetAuthHeader();
+        var response = await http.PostAsJsonAsync("api/trainers", request);
+        return response.IsSuccessStatusCode;
+    }
 }

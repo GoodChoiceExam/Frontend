@@ -1,0 +1,96 @@
+@page "/opret-traener"
+@using FitLife.Frontend.Services
+@inject TrainerService TrainerService
+@inject AuthService Auth
+@inject NavigationManager Nav
+
+@if (!_isTrainer)
+{
+    <p>Du har ikke adgang til denne side.</p>
+}
+else
+{
+    <div class="opret-traener-page">
+        <h1>Tilføj personlig træner</h1>
+
+        @if (!string.IsNullOrEmpty(_message))
+        {
+            <p class="@(_success ? "success-msg" : "error-msg")">@_message</p>
+        }
+
+        <div class="opret-traener-card">
+            <EditForm Model="_model" OnValidSubmit="HandleSubmit">
+                <DataAnnotationsValidator />
+
+                <div class="form-group">
+                    <label>Navn</label>
+                    <InputText @bind-Value="_model.Name" />
+                </div>
+                <div class="form-group">
+                    <label>Bio</label>
+                    <InputTextArea @bind-Value="_model.Bio" />
+                </div>
+                <div class="form-group">
+                    <label>Specialer (kommasepareret)</label>
+                    <InputText @bind-Value="_model.Specialties" />
+                </div>
+                <div class="form-group">
+                    <label>Års erfaring</label>
+                    <InputNumber @bind-Value="_model.ExperienceYears" />
+                </div>
+
+                <button type="submit" class="submit-btn" disabled="@_loading">
+                    @(_loading ? "Tilføjer..." : "Tilføj træner")
+                </button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+@code {
+    private bool _isTrainer;
+    private bool _loading;
+    private bool _success;
+    private string? _message;
+    private readonly TraenerModel _model = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var role = await Auth.GetRoleAsync();
+        _isTrainer = role == "Trainer";
+        if (!_isTrainer) Nav.NavigateTo("/");
+    }
+
+    private async Task HandleSubmit()
+    {
+        _loading = true;
+        _message = null;
+
+        var specialties = _model.Specialties
+            .Split(',', StringSplitOptions.RemoveEmptyEntries)
+            .Select(s => s.Trim())
+            .ToList();
+
+        var success = await TrainerService.CreateTrainerAsync(new
+        {
+            name = _model.Name,
+            bio = _model.Bio,
+            specialties,
+            experienceYears = _model.ExperienceYears,
+            rating = 0.0,
+            sessions = 0
+        });
+
+        _success = success;
+        _message = success ? "Træner tilføjet!" : "Noget gik galt. Prøv igen.";
+        _loading = false;
+    }
+
+    private class TraenerModel
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Bio { get; set; } = string.Empty;
+        public string Specialties { get; set; } = string.Empty;
+        public int ExperienceYears { get; set; } = 1;
+    }
+}

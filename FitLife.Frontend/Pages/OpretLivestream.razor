@@ -1,0 +1,108 @@
+@page "/opret-livestream"
+@using FitLife.Frontend.Services
+@inject LivestreamService LivestreamService
+@inject AuthService Auth
+@inject NavigationManager Nav
+
+@if (!_isTrainer)
+{
+    <p>Du har ikke adgang til denne side.</p>
+}
+else
+{
+    <div class="opret-livestream-page">
+        <h1>Opret livestream</h1>
+
+        @if (!string.IsNullOrEmpty(_message))
+        {
+            <p class="@(_success ? "success-msg" : "error-msg")">@_message</p>
+        }
+
+        <div class="opret-livestream-card">
+            <EditForm Model="_model" OnValidSubmit="HandleSubmit">
+                <DataAnnotationsValidator />
+
+                <div class="form-group">
+                    <label>Titel</label>
+                    <InputText @bind-Value="_model.Title" />
+                </div>
+                <div class="form-group">
+                    <label>Instruktør</label>
+                    <InputText @bind-Value="_model.Instructor" />
+                </div>
+                <div class="form-group">
+                    <label>Kategori</label>
+                    <InputSelect @bind-Value="_model.Category">
+                        <option value="Yoga">Yoga</option>
+                        <option value="HIIT">HIIT</option>
+                        <option value="Strength">Strength</option>
+                        <option value="Mobility">Mobility</option>
+                    </InputSelect>
+                </div>
+                <div class="form-group">
+                    <label>Starttidspunkt</label>
+                    <InputDate Type="InputDateType.DateTimeLocal" @bind-Value="_model.StartTime" />
+                </div>
+                <div class="form-group">
+                    <label>Varighed (minutter)</label>
+                    <InputNumber @bind-Value="_model.DurationMinutes" />
+                </div>
+                <div class="form-group">
+                    <label>Teams URL</label>
+                    <InputText @bind-Value="_model.TeamsUrl" />
+                </div>
+
+                <button type="submit" class="submit-btn" disabled="@_loading">
+                    @(_loading ? "Opretter..." : "Opret livestream")
+                </button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+@code {
+    private bool _isTrainer;
+    private bool _loading;
+    private bool _success;
+    private string? _message;
+    private readonly LivestreamModel _model = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var role = await Auth.GetRoleAsync();
+        _isTrainer = role == "Trainer";
+        if (!_isTrainer) Nav.NavigateTo("/");
+    }
+
+    private async Task HandleSubmit()
+    {
+        _loading = true;
+        _message = null;
+
+        var success = await LivestreamService.CreateLivestreamAsync(new
+        {
+            title = _model.Title,
+            instructor = _model.Instructor,
+            category = _model.Category,
+            startTime = _model.StartTime,
+            durationMinutes = _model.DurationMinutes,
+            teamsUrl = _model.TeamsUrl,
+            isLive = false,
+            participants = 0
+        });
+
+        _success = success;
+        _message = success ? "Livestream oprettet!" : "Noget gik galt. Prøv igen.";
+        _loading = false;
+    }
+
+    private class LivestreamModel
+    {
+        public string Title { get; set; } = string.Empty;
+        public string Instructor { get; set; } = string.Empty;
+        public string Category { get; set; } = "Yoga";
+        public DateTime StartTime { get; set; } = DateTime.Now;
+        public int DurationMinutes { get; set; } = 45;
+        public string TeamsUrl { get; set; } = string.Empty;
+    }
+}

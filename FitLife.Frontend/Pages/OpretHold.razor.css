@@ -1,0 +1,102 @@
+.opret-hold-page {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+    background-color: #F7F5F0;
+    min-height: 100vh;
+    font-family: "DM Sans", "Helvetica Neue", Arial, sans-serif;
+}
+
+.opret-hold-page h1 {
+    font-size: 2rem;
+    color: #2B2B28;
+    margin-bottom: 2rem;
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-weight: 600;
+}
+
+.opret-hold-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #2B2B28;
+    margin-bottom: 0.3rem;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    padding: 0.75rem 1rem;
+    border: 1px solid rgba(43, 43, 40, 0.12);
+    border-radius: 0.75rem;
+    font-size: 1rem;
+    background: #F7F5F0;
+    color: #2B2B28;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: transparent;
+    box-shadow: 0 0 0 2px #1F5C45;
+}
+
+.form-group textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.submit-btn {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    background: #1F5C45;
+    color: #fff;
+    border: none;
+    border-radius: 0.75rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 0.5rem;
+}
+
+.submit-btn:hover:not(:disabled) {
+    background: #174d38;
+}
+
+.submit-btn:disabled {
+    background: #aaa;
+    cursor: not-allowed;
+}
+
+.success-msg {
+    color: #1F5C45;
+    background: #E8F0EC;
+    padding: 0.5rem 0.8rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+.error-msg {
+    color: #c0392b;
+    background: #fdecea;
+    padding: 0.5rem 0.8rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
