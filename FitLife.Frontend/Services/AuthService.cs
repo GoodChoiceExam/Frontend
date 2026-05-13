@@ -34,6 +34,20 @@ public class AuthService
         await _js.InvokeVoidAsync("localStorage.removeItem", "jwt");
     }
     
+    public async Task<bool> RegisterTrainerAsync(string fullName, string email, string password)
+    {
+        var response = await _http.PostAsJsonAsync("auth/register-trainer", new { fullName, email, password });
+        if (!response.IsSuccessStatusCode)
+            return false;
+
+        var token = await response.Content.ReadFromJsonAsync<TokenResponse>();
+        if (token is null)
+            return false;
+
+        await _js.InvokeVoidAsync("localStorage.setItem", "jwt", token.AccessToken);
+        return true;
+    }
+    
     public async Task<bool> RegisterAsync(string fullName, string email, string password)
     {
         var response = await _http.PostAsJsonAsync("auth/register", new
@@ -63,6 +77,22 @@ public class AuthService
     {
         var token = await GetTokenAsync();
         return !string.IsNullOrEmpty(token);
+    }
+    
+    public async Task<string?> GetRoleAsync()
+    {
+        var token = await GetTokenAsync();
+        if (token is null) return null;
+
+        var payload = token.Split('.')[1];
+        var padded = payload.PadRight(payload.Length + (4 - payload.Length % 4) % 4, '=');
+        var json = System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(padded));
+        var doc = System.Text.Json.JsonDocument.Parse(json);
+
+        if (doc.RootElement.TryGetProperty("http://schemas.microsoft.com/ws/2008/06/identity/claims/role", out var role))
+            return role.GetString();
+
+        return null;
     }
     
     public async Task<string?> GetUserNameAsync()

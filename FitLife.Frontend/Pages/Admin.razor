@@ -1,0 +1,94 @@
+@page "/admin"
+@using FitLife.Frontend.Services
+@inject AuthService Auth
+@inject NavigationManager Nav
+
+@if (!_isTrainer)
+{
+    <p>Du har ikke adgang til denne side.</p>
+}
+else
+{
+    <div class="admin-page">
+        <h1>Trænerpanel</h1>
+
+        <div class="admin-sections">
+
+            <div class="admin-card">
+                <h2>Opret trænerbruger</h2>
+                @if (!string.IsNullOrEmpty(_message))
+                {
+                    <p class="@(_success ? "success-msg" : "error-msg")">@_message</p>
+                }
+                <EditForm Model="_model" OnValidSubmit="HandleRegisterTrainer">
+                    <DataAnnotationsValidator />
+                    <div class="form-group">
+                        <label>Navn</label>
+                        <InputText @bind-Value="_model.FullName" />
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <InputText @bind-Value="_model.Email" />
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <InputText @bind-Value="_model.Password" type="password" />
+                    </div>
+                    <button type="submit" class="admin-btn" disabled="@_loading">
+                        @(_loading ? "Opretter..." : "Opret træner")
+                    </button>
+                </EditForm>
+            </div>
+
+            <div class="admin-card">
+                <h2>Genveje</h2>
+                <button class="admin-btn" @onclick='() => Nav.NavigateTo("/opret-hold")'>
+                    + Opret nyt hold
+                </button>
+                <button class="admin-btn" @onclick='() => Nav.NavigateTo("/opret-livestream")'>
+                    + Opret livestream
+                </button>
+                <button class="admin-btn" @onclick='() => Nav.NavigateTo("/opret-traener")'>
+                    + Tilføj personlig træner
+                </button>
+            </div>
+
+        </div>
+    </div>
+}
+
+@code {
+    private bool _isTrainer;
+    private bool _loading;
+    private bool _success;
+    private string? _message;
+    private readonly RegisterModel _model = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var role = await Auth.GetRoleAsync();
+        _isTrainer = role == "Trainer";
+
+        if (!_isTrainer)
+            Nav.NavigateTo("/");
+    }
+
+    private async Task HandleRegisterTrainer()
+    {
+        _loading = true;
+        _message = null;
+
+        var success = await Auth.RegisterTrainerAsync(_model.FullName, _model.Email, _model.Password);
+        _success = success;
+        _message = success ? "Træner oprettet!" : "Noget gik galt. Prøv igen.";
+
+        _loading = false;
+    }
+
+    private class RegisterModel
+    {
+        public string FullName { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+    }
+}
