@@ -15,25 +15,33 @@ var livestreamUrl = builder.Configuration["LivestreamBaseUrl"] ?? "http://localh
 var communityUrl = builder.Configuration["CommunityBaseUrl"] ?? "http://localhost:5246/";
 var membershipUrl = builder.Configuration["MembershipBaseUrl"] ?? "http://localhost:5154/";
 
+builder.Services.AddTransient<AuthHandler>();
+
 builder.Services.AddHttpClient<AuthService>(client =>
     client.BaseAddress = new Uri(identityUrl));
 
 builder.Services.AddHttpClient<ClassesService>(client =>
-    client.BaseAddress = new Uri(classesUrl));
+    client.BaseAddress = new Uri(classesUrl))
+    .AddHttpMessageHandler<AuthHandler>();
 
 builder.Services.AddHttpClient<TrainerService>(client =>
-    client.BaseAddress = new Uri(trainerUrl));
+    client.BaseAddress = new Uri(trainerUrl))
+    .AddHttpMessageHandler<AuthHandler>();
 
 builder.Services.AddHttpClient<TrainingLogService>(client =>
-    client.BaseAddress = new Uri(trainingLogUrl));
+    client.BaseAddress = new Uri(trainingLogUrl))
+    .AddHttpMessageHandler<AuthHandler>();
 
 builder.Services.AddHttpClient<LivestreamService>(client =>
-    client.BaseAddress = new Uri(livestreamUrl));
+    client.BaseAddress = new Uri(livestreamUrl))
+    .AddHttpMessageHandler<AuthHandler>();
 
 builder.Services.AddHttpClient<CommunityService>(client =>
-    client.BaseAddress = new Uri(communityUrl));
+    client.BaseAddress = new Uri(communityUrl))
+    .AddHttpMessageHandler<AuthHandler>();
 
 builder.Services.AddHttpClient<MembershipService>(client =>
-    client.BaseAddress = new Uri(membershipUrl));
+    client.BaseAddress = new Uri(membershipUrl))
+    .AddHttpMessageHandler<AuthHandler>();
 
 await builder.Build().RunAsync();
