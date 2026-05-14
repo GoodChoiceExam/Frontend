@@ -2,11 +2,16 @@
 @using FitLife.Frontend.Models
 @using FitLife.Frontend.Services
 @inject CommunityService CommunityService
+@inject MembershipService MembershipService
 @inject AuthService AuthService
 
-@if (community is null)
+@if (isLoading)
 {
     <p>Henter community...</p>
+}
+else if (!string.IsNullOrWhiteSpace(loadError))
+{
+    <p>@loadError</p>
 }
 else
 {
@@ -29,19 +34,22 @@ else
             <span class="members-status">Roligt</span>
         </div>
 
-        <div class="new-post-card">
-            <h3>Skriv et opslag</h3>
-            <textarea @bind="newPostContent" placeholder="Del en besked med gruppen..." rows="3"></textarea>
-            <div class="new-post-actions">
-                <button class="send-btn" @onclick="SubmitPost" disabled="@isSubmitting">
-                    <i class="bi bi-send"></i>
-                    @(isSubmitting ? "Sender..." : "Send opslag")
-                </button>
+        @if (canCreatePost && community is not null)
+        {
+            <div class="new-post-card">
+                <h3>Skriv et opslag</h3>
+                <textarea @bind="newPostContent" placeholder="Del en besked med gruppen..." rows="3"></textarea>
+                <div class="new-post-actions">
+                    <button class="send-btn" @onclick="SubmitPost" disabled="@isSubmitting">
+                        <i class="bi bi-send"></i>
+                        @(isSubmitting ? "Sender..." : "Send opslag")
+                    </button>
+                </div>
             </div>
-        </div>
+        }
 
         <div class="posts-section">
-            <h2>Opslag fra gruppen</h2>
+            <h2>@(isStaff ? "Alle opslag" : "Opslag fra gruppen")</h2>
 
             @if (posts is null)
             {
@@ -79,19 +87,70 @@ else
     private string newPostContent = string.Empty;
     private bool isSubmitting = false;
     private bool isLoggedIn = false;
+    private bool isLoading = true;
+    private bool isStaff = false;
+    private bool canCreatePost = false;
+    private string? loadError;
 
     protected override async Task OnInitializedAsync()
     {
-        isLoggedIn = await AuthService.IsLoggedInAsync();
-        var communities = await CommunityService.GetCommunitiesAsync();
-        community = communities.FirstOrDefault();
-        if (community is not null)
+        try
+        {
+            isLoggedIn = await AuthService.IsLoggedInAsync();
+            if (!isLoggedIn)
+            {
+                loadError = "Du skal være logget ind for at se community.";
+                return;
+            }
+
+            var role = await AuthService.GetRoleAsync();
+            isStaff =
+                string.Equals(role, "Trainer", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(role, "Admin", StringComparison.OrdinalIgnoreCase);
+
+            if (isStaff)
+            {
+                var communities = await CommunityService.GetCommunitiesAsync();
+                community = communities.FirstOrDefault();
+
+                var allPosts = new List<CommunityPost>();
+                foreach (var centerCommunity in communities)
+                {
+                    var communityPosts = await CommunityService.GetPostsAsync(centerCommunity.Id);
+                    allPosts.AddRange(communityPosts);
+                }
+
+                posts = allPosts;
+                canCreatePost = false;
+                return;
+            }
+
+            var member = await MembershipService.GetCurrentMemberAsync();
+            if (member is null)
+            {
+                loadError = "Du mangler en medlemsprofil for at se dit lokale community.";
+                return;
+            }
+
+            community = await CommunityService.GetCommunityByCenterAsync(member.PrimaryCenter);
+            if (community is null)
+            {
+                loadError = $"Der findes ikke et community for {member.PrimaryCenter} endnu.";
+                return;
+            }
+
             posts = await CommunityService.GetPostsAsync(community.Id);
+            canCreatePost = true;
+        }
+        finally
+        {
+            isLoading = false;
+        }
     }
 
     private async Task SubmitPost()
     {
-        if (string.IsNullOrWhiteSpace(newPostContent) || community is null)
+        if (!canCreatePost || string.IsNullOrWhiteSpace(newPostContent) || community is null)
             return;
 
         isSubmitting = true;
