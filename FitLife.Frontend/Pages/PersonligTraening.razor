@@ -2,85 +2,349 @@
 @using FitLife.Frontend.Models
 @using FitLife.Frontend.Services
 @inject TrainerService TrainerService
+@inject AuthService AuthService
+@inject IJSRuntime JS
 
 <div class="pt-page">
-    <div class="pt-hero">
-        <div class="pt-hero-content">
-            <h1>Personlig træning</h1>
-            <p class="pt-subtitle">Få professionel vejledning til at nå dine mål</p>
-        </div>
-    </div>
 
-    <div class="pt-banner">
-        <div class="pt-banner-inner">
-            <div class="pt-banner-text">
-                <h2>Opnå dine mål hurtigere</h2>
-                <p>Personlig træning giver dig den vejledning og motivation, du har brug for. Arbejd med eksperter der forstår din rejse.</p>
-                <div class="pt-benefits">
-                    <div class="pt-benefits-col">
-                        <div class="pt-benefit">• Skræddersyet træningsplan til dine mål</div>
-                        <div class="pt-benefit">• Fleksible tider der passer dig</div>
-                        <div class="pt-benefit">• Kostplan og livsstilsrådgivning</div>
+    @if (activeView == "overview")
+    {
+        <div class="pt-hero">
+            <div class="pt-hero-content">
+                <div class="pt-hero-header">
+                    <h1>Personlig træning</h1>
+                    <button class="pt-mine-btn" @onclick='() => activeView = "bookings"'>Mine træningssessioner</button>
+                </div>
+                <p class="pt-subtitle">Få professionel vejledning til at nå dine mål</p>
+            </div>
+        </div>
+
+        <div class="pt-banner">
+            <div class="pt-banner-inner">
+                <div class="pt-banner-text">
+                    <h2>Opnå dine mål hurtigere</h2>
+                    <p>Personlig træning giver dig den vejledning og motivation, du har brug for. Arbejd med eksperter der forstår din rejse.</p>
+                    <div class="pt-benefits">
+                        <div class="pt-benefits-col">
+                            <div class="pt-benefit">• Skræddersyet træningsplan til dine mål</div>
+                            <div class="pt-benefit">• Fleksible tider der passer dig</div>
+                            <div class="pt-benefit">• Kostplan og livsstilsrådgivning</div>
+                        </div>
+                        <div class="pt-benefits-col">
+                            <div class="pt-benefit">• En-til-en vejledning og feedback</div>
+                            <div class="pt-benefit">• Motivation og ansvarlighed</div>
+                            <div class="pt-benefit">• Tilgængelig på alle FitLife centre</div>
+                        </div>
                     </div>
-                    <div class="pt-benefits-col">
-                        <div class="pt-benefit">• En-til-en vejledning og feedback</div>
-                        <div class="pt-benefit">• Motivation og ansvarlighed</div>
-                        <div class="pt-benefit">• Tilgængelig på alle FitLife centre</div>
+                </div>
+                <div class="pt-banner-image"></div>
+            </div>
+        </div>
+
+        <div class="pt-trainers-section">
+            <h2>Mød vores trænere</h2>
+
+            @if (isLoading)
+            {
+                <p class="pt-loading">Henter trænere...</p>
+            }
+            else if (!trainers.Any())
+            {
+                <p class="pt-loading">Ingen trænere fundet.</p>
+            }
+            else
+            {
+                <div class="pt-trainer-grid">
+                    @foreach (var trainer in trainers)
+                    {
+                        <div class="pt-trainer-card">
+                            <div class="pt-trainer-image">
+                                <div class="pt-rating">⭐ @trainer.Rating</div>
+                            </div>
+                            <div class="pt-trainer-body">
+                                <h3>@trainer.Name</h3>
+                                <div class="pt-specialties">
+                                    @foreach (var specialty in trainer.Specialties)
+                                    {
+                                        <span class="pt-specialty-badge">@specialty</span>
+                                    }
+                                </div>
+                                <div class="pt-trainer-meta">
+                                    <span>🏅 @trainer.ExperienceYears år erfaring</span>
+                                    <span>🕐 @trainer.Sessions+ sessions</span>
+                                </div>
+                                <button class="pt-book-btn" @onclick="() => SelectTrainer(trainer)">Book session</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    }
+
+    @if (activeView == "book" && selectedTrainer is not null)
+    {
+        <div class="pt-detail-page">
+            <button class="pt-back-btn" @onclick='() => activeView = "overview"'>
+                <i class="bi bi-arrow-left"></i> Tilbage til trænere
+            </button>
+
+            <div class="pt-detail-layout">
+                <div class="pt-detail-left">
+                    <div class="pt-trainer-image-large"></div>
+                    <h1 class="pt-detail-title">@selectedTrainer.Name</h1>
+                    <p class="pt-detail-bio">@selectedTrainer.Bio</p>
+                    <div class="pt-specialties">
+                        @foreach (var specialty in selectedTrainer.Specialties)
+                        {
+                            <span class="pt-specialty-badge">@specialty</span>
+                        }
+                    </div>
+                    <div class="pt-detail-stats">
+                        <div class="pt-detail-stat">
+                            <div class="pt-stat-label">Erfaring</div>
+                            <div class="pt-stat-value">@selectedTrainer.ExperienceYears år</div>
+                        </div>
+                        <div class="pt-detail-stat">
+                            <div class="pt-stat-label">Sessions</div>
+                            <div class="pt-stat-value">@selectedTrainer.Sessions+</div>
+                        </div>
+                        <div class="pt-detail-stat">
+                            <div class="pt-stat-label">Rating</div>
+                            <div class="pt-stat-value">⭐ @selectedTrainer.Rating</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-detail-right">
+                    <div class="pt-booking-card">
+                        <h3>Book en session</h3>
+                        <div class="pt-form-group">
+                            <label>Vælg dato</label>
+                            <div class="pt-date-wrapper" @onclick="OpenPicker">
+                                @if (!selectedDate.HasValue)
+                                {
+                                    <div class="pt-calendar-placeholder">
+                                        <i class="bi bi-calendar3"></i> Se kalenderen
+                                    </div>
+                                }
+                                <input id="pt-date-input" type="date" @bind="selectedDate" @bind:after="OnDateChanged"
+                                    min="@DateTime.Today.ToString("yyyy-MM-dd")"
+                                    class="pt-input @(!selectedDate.HasValue ? "pt-date-hidden" : "")" />
+                            </div>
+                        </div>
+                        @if (selectedDate.HasValue)
+                        {
+                            <div class="pt-form-group">
+                                <label>Vælg tidspunkt</label>
+                                <div class="pt-time-slots">
+                                    @foreach (var hour in availableHours)
+                                    {
+                                        var isSelected = selectedHour == hour;
+                                        var isBooked = bookedHours.Contains(hour);
+                                        <button class="pt-time-slot @(isSelected ? "selected" : "") @(isBooked ? "booked" : "")"
+                                            @onclick="() => { if (!isBooked) selectedHour = hour; }"
+                                            disabled="@isBooked">
+                                            @($"{hour:00}:00 – {hour + 1:00}:00")
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+                        }
+                        <div class="pt-booking-price">
+                            <span class="pt-booking-label">Pris</span>
+                            <span class="pt-price-value">Inkluderet</span>
+                            <p class="pt-price-note">Personlig træning er inkluderet i dit medlemskab</p>
+                        </div>
+                        <button class="pt-book-btn" @onclick="BookSession"
+                            disabled="@(!selectedDate.HasValue || selectedHour == -1)">
+                            Book session
+                        </button>
+                        <p class="pt-cancel-note">Du kan afmelde dig indtil 24 timer før start</p>
                     </div>
                 </div>
             </div>
-            <div class="pt-banner-image"></div>
+        </div>
+    }
+
+    @if (activeView == "bookings")
+    {
+        <div class="pt-detail-page">
+            <button class="pt-back-btn" @onclick='() => activeView = "overview"'>
+                <i class="bi bi-arrow-left"></i> Tilbage til trænere
+            </button>
+
+            <h1 class="pt-detail-title">Mine træningssessioner</h1>
+            <p class="pt-detail-bio">Dine kommende og tidligere sessioner</p>
+
+            <h2 class="pt-section-header">Kommende sessioner</h2>
+            @if (!UpcomingBookings.Any())
+            {
+                <p class="pt-loading">Ingen kommende sessioner booket.</p>
+            }
+            else
+            {
+                <div class="pt-bookings-list">
+                    @foreach (var b in UpcomingBookings)
+                    {
+                        var trainer = trainers.FirstOrDefault(t => t.Id == b.TrainerId);
+                        <div class="pt-booking-item">
+                            <div class="pt-booking-item-info">
+                                <h3>@(trainer?.Name ?? "Ukendt træner")</h3>
+                                <div class="pt-booking-item-meta">
+                                    <span><i class="bi bi-calendar3"></i> @b.SessionTime.ToLocalTime().ToString("d. MMM yyyy")</span>
+                                    <span><i class="bi bi-clock"></i> @b.SessionTime.ToLocalTime().ToString("HH:mm")</span>
+                                </div>
+                            </div>
+                            <button class="pt-afmeld-btn" @onclick="() => Afmeld(b)">Afmeld</button>
+                        </div>
+                    }
+                </div>
+            }
+
+            <h2 class="pt-section-header">Tidligere sessioner</h2>
+            @if (!PastBookings.Any())
+            {
+                <p class="pt-loading">Ingen tidligere sessioner.</p>
+            }
+            else
+            {
+                <div class="pt-activity-list">
+                    @foreach (var b in PastBookings)
+                    {
+                        var trainer = trainers.FirstOrDefault(t => t.Id == b.TrainerId);
+                        <div class="pt-activity-item">
+                            <div>
+                                <div class="pt-activity-title">@(trainer?.Name ?? "Ukendt træner")</div>
+                                <div class="pt-activity-time">@b.SessionTime.ToLocalTime().ToString("d. MMM yyyy, HH:mm")</div>
+                            </div>
+                            <span class="pt-activity-badge">Gennemført</span>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@if (showConfirmation && selectedTrainer is not null)
+{
+    <div class="pt-modal-overlay" @onclick="CloseConfirmation">
+        <div class="pt-modal-card" @onclick:stopPropagation="true">
+            <h1>Du er nu tilmeldt!</h1>
+            <h2>Session med @selectedTrainer.Name</h2>
+            <div class="pt-confirmation-rows">
+                <div class="pt-confirmation-row">
+                    <div class="pt-conf-icon"><i class="bi bi-calendar3"></i></div>
+                    <div>
+                        <div class="pt-conf-label">Dato</div>
+                        <div class="pt-conf-value">@selectedDate!.Value.ToString("dddd d. MMMM yyyy")</div>
+                    </div>
+                </div>
+                <div class="pt-confirmation-row">
+                    <div class="pt-conf-icon"><i class="bi bi-clock"></i></div>
+                    <div>
+                        <div class="pt-conf-label">Tidspunkt</div>
+                        <div class="pt-conf-value">@($"{selectedHour:00}:00 – {selectedHour + 1:00}:00")</div>
+                    </div>
+                </div>
+            </div>
+            <hr />
+            <h4>Næste skridt</h4>
+            <ul class="pt-next-steps">
+                <li><i class="bi bi-check"></i> Du modtager en bekræftelse på e-mail</li>
+                <li><i class="bi bi-check"></i> Vi sender dig en påmindelse 24 timer før start</li>
+                <li><i class="bi bi-check"></i> Mød op 5 minutter før din session</li>
+            </ul>
+            <button class="pt-close-btn" @onclick="CloseConfirmation">Luk</button>
         </div>
     </div>
-
-    <div class="pt-trainers-section">
-        <h2>Mød vores trænere</h2>
-
-        @if (isLoading)
-        {
-            <p class="pt-loading">Henter trænere...</p>
-        }
-        else if (!trainers.Any())
-        {
-            <p class="pt-loading">Ingen trænere fundet.</p>
-        }
-        else
-        {
-            <div class="pt-trainer-grid">
-                @foreach (var trainer in trainers)
-                {
-                    <div class="pt-trainer-card">
-                        <div class="pt-trainer-image">
-                            <div class="pt-rating">⭐ @trainer.Rating</div>
-                        </div>
-                        <div class="pt-trainer-body">
-                            <h3>@trainer.Name</h3>
-                            <div class="pt-specialties">
-                                @foreach (var specialty in trainer.Specialties)
-                                {
-                                    <span class="pt-specialty-badge">@specialty</span>
-                                }
-                            </div>
-                            <div class="pt-trainer-meta">
-                                <span>🏅 @trainer.ExperienceYears år erfaring</span>
-                                <span>🕐 @trainer.Sessions+ sessions</span>
-                            </div>
-                            <button class="pt-book-btn">Book session</button>
-                        </div>
-                    </div>
-                }
-            </div>
-        }
-    </div>
-</div>
+}
 
 @code {
     private List<PersonalTrainer> trainers = [];
+    private List<TrainerBooking> myBookings = [];
+    private List<int> bookedHours = [];
     private bool isLoading = true;
+    private string activeView = "overview";
+    private PersonalTrainer? selectedTrainer;
+    private DateTime? selectedDate;
+    private int selectedHour = -1;
+    private DateTime selectedSessionTime;
+    private bool showConfirmation = false;
+    private Guid? memberId;
+
+    private readonly List<int> availableHours = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17];
+
+    private IEnumerable<TrainerBooking> UpcomingBookings => myBookings
+        .Where(b => b.SessionTime > DateTime.UtcNow)
+        .OrderBy(b => b.SessionTime);
+
+    private IEnumerable<TrainerBooking> PastBookings => myBookings
+        .Where(b => b.SessionTime <= DateTime.UtcNow)
+        .OrderByDescending(b => b.SessionTime);
 
     protected override async Task OnInitializedAsync()
     {
         trainers = await TrainerService.GetAllAsync();
+        memberId = await AuthService.GetMemberIdAsync();
+        if (memberId is not null)
+            myBookings = await TrainerService.GetMyBookingsAsync(memberId.Value);
         isLoading = false;
+    }
+
+    private void SelectTrainer(PersonalTrainer trainer)
+    {
+        selectedTrainer = trainer;
+        selectedDate = null;
+        selectedHour = -1;
+        bookedHours = [];
+        activeView = "book";
+    }
+
+    private async Task OpenPicker()
+    {
+        await JS.InvokeVoidAsync("eval", "document.getElementById('pt-date-input').showPicker()");
+    }
+
+    private async Task OnDateChanged()
+    {
+        selectedHour = -1;
+        if (selectedTrainer is not null && selectedDate.HasValue)
+        {
+            bookedHours = await TrainerService.GetBookedHoursAsync(
+                selectedTrainer.Id,
+                DateOnly.FromDateTime(selectedDate.Value));
+        }
+        else
+        {
+            bookedHours = [];
+        }
+    }
+
+    private async Task BookSession()
+    {
+        if (selectedTrainer is null || memberId is null || !selectedDate.HasValue || selectedHour == -1) return;
+        selectedSessionTime = DateTime.SpecifyKind(selectedDate.Value.AddHours(selectedHour), DateTimeKind.Local).ToUniversalTime();
+        var booking = await TrainerService.BookAsync(selectedTrainer.Id, memberId.Value, selectedSessionTime);
+        if (booking is not null)
+        {
+            myBookings.Add(booking);
+            bookedHours.Add(selectedHour);
+            showConfirmation = true;
+        }
+    }
+
+    private void CloseConfirmation()
+    {
+        showConfirmation = false;
+        activeView = "overview";
+    }
+
+    private async Task Afmeld(TrainerBooking booking)
+    {
+        var success = await TrainerService.CancelBookingAsync(booking.TrainerId, booking.Id);
+        if (success)
+            myBookings.Remove(booking);
     }
 }
