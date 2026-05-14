@@ -16,7 +16,14 @@ public class ClassesService(HttpClient http, AuthService authService)
     public async Task<List<TrainingClass>> GetAllAsync()
     {
         await SetAuthHeader();
-        return await http.GetFromJsonAsync<List<TrainingClass>>("api/classes") ?? [];
+        try
+        {
+            return await http.GetFromJsonAsync<List<TrainingClass>>("api/classes") ?? [];
+        }
+        catch
+        {
+            return [];
+        }
     }
 
     public async Task<bool> CreateClassAsync(object request)
@@ -44,6 +51,13 @@ public class ClassesService(HttpClient http, AuthService authService)
     public async Task<List<ClassBooking>> GetMyBookingsAsync(Guid memberId)
     {
         await SetAuthHeader();
-        return await http.GetFromJsonAsync<List<ClassBooking>>($"api/classes/bookings/mine?memberId={memberId}") ?? [];
+        try
+        {
+            return await http.GetFromJsonAsync<List<ClassBooking>>($"api/classes/bookings/mine?memberId={memberId}") ?? [];
+        }
+        catch
+        {
+            return [];
+        }
     }
 }
