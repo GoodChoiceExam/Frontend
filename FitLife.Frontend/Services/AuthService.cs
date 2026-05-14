@@ -36,15 +36,19 @@ public class AuthService
     
     public async Task<bool> RegisterTrainerAsync(string fullName, string email, string password)
     {
+        var token = await GetTokenAsync();
+        if (token is not null)
+            _http.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+        
         var response = await _http.PostAsJsonAsync("auth/register-trainer", new { fullName, email, password });
         if (!response.IsSuccessStatusCode)
             return false;
 
-        var token = await response.Content.ReadFromJsonAsync<TokenResponse>();
+        var result = await response.Content.ReadFromJsonAsync<TokenResponse>();
         if (token is null)
             return false;
 
-        await _js.InvokeVoidAsync("localStorage.setItem", "jwt", token.AccessToken);
+        await _js.InvokeVoidAsync("localStorage.setItem", "jwt", result.AccessToken);
         return true;
     }
     
