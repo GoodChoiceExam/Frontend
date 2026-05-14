@@ -1,8 +1,24 @@
 ﻿@inherits LayoutComponentBase
+@inject AuthService AuthService
+@inject NavigationManager Navigation
 
-<div class="layout">
-    <NavMenu />
-    <main class="main-content">
-        @Body
-    </main>
-</div>
+@if (isAuthenticated)
+{
+    <div class="layout">
+        <NavMenu />
+        <main class="main-content">
+            @Body
+        </main>
+    </div>
+}
+
+@code {
+    private bool isAuthenticated = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        isAuthenticated = await AuthService.IsLoggedInAsync();
+        if (!isAuthenticated)
+            Navigation.NavigateTo("/login", replace: true);
+    }
+}
