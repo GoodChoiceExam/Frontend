@@ -15,10 +15,13 @@
 @code {
     private bool isAuthenticated = false;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (!firstRender) return;
         isAuthenticated = await AuthService.IsLoggedInAsync();
         if (!isAuthenticated)
             Navigation.NavigateTo("/login", replace: true);
+        else
+            StateHasChanged();
     }
 }
