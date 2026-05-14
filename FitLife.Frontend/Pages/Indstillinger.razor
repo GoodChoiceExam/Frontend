@@ -56,7 +56,6 @@
                             <div class="profile-info">
                                 <h2>@profile.FullName</h2>
                                 <p>@profile.Email</p>
-                                <button class="secondary-button" type="button">Skift profilbillede</button>
                             </div>
                         </div>
 
@@ -301,15 +300,24 @@
     {
         get
         {
-            var parts = profile.FullName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-            if (parts.Length == 0)
-                return "FL";
-
-            if (parts.Length == 1)
-                return parts[0][0].ToString().ToUpperInvariant();
-
-            return $"{parts[0][0]}{parts[^1][0]}".ToUpperInvariant();
+            return GetInitials(profile.FullName);
         }
+    }
+
+    private static string GetInitials(string? fullName)
+    {
+        if (string.IsNullOrWhiteSpace(fullName))
+            return "U";
+
+        var parts = fullName.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        if (parts.Length == 0)
+            return "U";
+
+        if (parts.Length == 1)
+            return parts[0][0].ToString().ToUpperInvariant();
+
+        return $"{parts[0][0]}{parts[^1][0]}".ToUpperInvariant();
     }
 
     private string MembershipTitle => $"{FormatMembershipType(preferences.MembershipType)} Medlemskab";
