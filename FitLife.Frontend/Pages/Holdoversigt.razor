@@ -36,7 +36,7 @@
                 @foreach (var c in FilteredClasses)
                 {
                     <div class="class-card">
-                        <div class="card-image"></div>
+                        <div class="card-image" style="background-image: url('@GetCategoryImage(c.Category)')"></div>
                         <div class="card-content">
                             <div class="card-top">
                                 <span class="category-badge">@c.Category</span>
@@ -66,7 +66,7 @@
 
             <div class="detail-layout">
                 <div class="detail-left">
-                    <div class="detail-image"></div>
+                    <div class="detail-image" style="background-image: url('@GetCategoryImage(selectedClass.Category)')"></div>
 
                     <div class="detail-badges">
                         <span class="detail-time-badge">@GetRelativeTime(selectedClass.StartTime) kl. @selectedClass.StartTime.ToString("HH:mm")</span>
@@ -320,4 +320,13 @@
         if (diff.Days == -1) return "I går";
         return dt.ToString("d. MMM");
     }
+    
+    private string GetCategoryImage(string category) => category switch
+    {
+        "Yoga" => "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=600&q=80",
+        "HIIT" => "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&q=80",
+        "Strength" => "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&q=80",
+        "Mobility" => "https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=600&q=80",
+        _ => "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=600&q=80"
+    };
 }
