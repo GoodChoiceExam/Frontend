@@ -90,6 +90,8 @@
     width: 380px;
     height: 280px;
     background: rgba(255,255,255,0.15);
+    background-size: cover;
+    background-position: center;
     border-radius: 12px;
     flex-shrink: 0;
 }
@@ -128,6 +130,8 @@
 .pt-trainer-image {
     height: 200px;
     background: #1F5C45;
+    background-size: cover;
+    background-position: center;
     position: relative;
 }
 

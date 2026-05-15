@@ -37,7 +37,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="pt-banner-image"></div>
+                <div class="pt-banner-image" style="background-image: url('https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&q=80')"></div>
             </div>
         </div>
 
@@ -58,7 +58,7 @@
                     @foreach (var trainer in trainers)
                     {
                         <div class="pt-trainer-card">
-                            <div class="pt-trainer-image">
+                            <div class="pt-trainer-image" style="background-image: url('@GetTrainerImage(trainers.IndexOf(trainer))')">
                                 <div class="pt-rating">⭐ @trainer.Rating</div>
                             </div>
                             <div class="pt-trainer-body">
@@ -91,7 +91,7 @@
 
             <div class="pt-detail-layout">
                 <div class="pt-detail-left">
-                    <div class="pt-trainer-image-large"></div>
+                    <div class="pt-trainer-image-large" style="background-image: url('@GetTrainerImage(trainers.IndexOf(selectedTrainer))')"></div>
                     <h1 class="pt-detail-title">@selectedTrainer.Name</h1>
                     <p class="pt-detail-bio">@selectedTrainer.Bio</p>
                     <div class="pt-specialties">
@@ -347,4 +347,15 @@
         if (success)
             myBookings.Remove(booking);
     }
+
+    private static readonly List<string> _trainerImages =
+    [
+        "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&q=80",
+        "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&q=80",
+        "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=600&q=80",
+        "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=600&q=80",
+        "https://images.unsplash.com/photo-1549060279-7e168fcee0c2?w=600&q=80",
+    ];
+
+    private string GetTrainerImage(int index) => _trainerImages[index % _trainerImages.Count];
 }
