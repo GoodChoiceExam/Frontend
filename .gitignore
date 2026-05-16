@@ -9,3 +9,4 @@ Thumbs.db
 .idea/
 *.user
 wwwroot/service-worker-assets.json
+wwwroot/appsettings.Development.json
