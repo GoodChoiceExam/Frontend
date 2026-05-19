@@ -1,8 +1,7 @@
 .pt-page {
     background-color: #F7F5F0;
     min-height: 100vh;
-    font-family: sans-serif;
-}
+    font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;}
 
 .pt-hero {
     padding: 3rem 2rem 1rem;
