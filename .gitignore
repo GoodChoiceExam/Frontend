@@ -10,3 +10,4 @@ Thumbs.db
 *.user
 wwwroot/service-worker-assets.json
 wwwroot/appsettings.Development.json
+FitLife.Frontend/wwwroot/appsettings.Development.json
