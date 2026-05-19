@@ -45,7 +45,7 @@ public class AuthService
             return false;
 
         var result = await response.Content.ReadFromJsonAsync<TokenResponse>();
-        if (token is null)
+        if (result is null)
             return false;
 
         await _js.InvokeVoidAsync("localStorage.setItem", "jwt", result.AccessToken);
@@ -113,6 +113,22 @@ public class AuthService
         var doc = System.Text.Json.JsonDocument.Parse(json);
 
         return doc.RootElement.TryGetProperty("name", out var name) ? name.GetString() : null;
+    }
+
+    public async Task<string?> GetEmailAsync()
+    {
+        var token = await GetTokenAsync();
+        if (token is null) return null;
+
+        var parts = token.Split('.');
+        if (parts.Length != 3) return null;
+
+        var payload = parts[1].Replace('-', '+').Replace('_', '/');
+        var padded = payload.PadRight(payload.Length + (4 - payload.Length % 4) % 4, '=');
+        var json = System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(padded));
+        var doc = System.Text.Json.JsonDocument.Parse(json);
+
+        return doc.RootElement.TryGetProperty("email", out var email) ? email.GetString() : null;
     }
     
     public async Task<Guid?> GetMemberIdAsync()

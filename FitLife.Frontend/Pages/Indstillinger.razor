@@ -218,6 +218,7 @@
     private Member? member;
     private bool isLoading = true;
     private bool isSaving;
+    private bool canCreateProfileFromUser;
     private string? errorMessage;
     private string? successMessage;
 
@@ -230,24 +231,28 @@
 
         if (member is null)
         {
-            errorMessage = "Der blev ikke fundet en medlemsprofil for den indloggede bruger.";
+            var role = await AuthService.GetRoleAsync();
+            canCreateProfileFromUser =
+                string.Equals(role, "Trainer", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(role, "Admin", StringComparison.OrdinalIgnoreCase);
+
+            if (!canCreateProfileFromUser)
+            {
+                errorMessage = "Der blev ikke fundet en medlemsprofil for den indloggede bruger.";
+                isLoading = false;
+                return;
+            }
+
+            profile.FullName = await AuthService.GetUserNameAsync() ?? string.Empty;
+            profile.Email = await AuthService.GetEmailAsync() ?? string.Empty;
+            profile.PrimaryCenter = "Vesterbro";
+
+            ApplyDefaultPreferences();
             isLoading = false;
             return;
         }
 
-        profile.FullName = member.FullName;
-        profile.Email = member.Email;
-        profile.PhoneNumber = member.PhoneNumber;
-        profile.PrimaryCenter = member.PrimaryCenter;
-
-        preferences.FitnessGoals = member.UserPreference?.FitnessGoals ?? [];
-        preferences.TrainingInterests = member.UserPreference?.TrainingInterests ?? [];
-        preferences.MembershipType = member.UserPreference?.MembershipType ?? "Premium";
-        preferences.ClassReminders = member.UserPreference?.ClassReminders ?? true;
-        preferences.LivestreamReminders = member.UserPreference?.LivestreamReminders ?? true;
-        preferences.BookingUpdates = member.UserPreference?.BookingUpdates ?? true;
-        preferences.CommunityActivity = member.UserPreference?.CommunityActivity ?? false;
-        preferences.MembershipAndPaymentMessages = member.UserPreference?.MembershipAndPaymentMessages ?? false;
+        ApplyMember(member);
 
         isLoading = false;
     }
@@ -258,13 +263,24 @@
         successMessage = null;
         errorMessage = null;
 
-        var updated = await MembershipService.UpdateMemberAsync(profile);
+        var updated = member is null && canCreateProfileFromUser
+            ? await MembershipService.CreateMemberAsync(new CreateMemberRequest
+            {
+                FullName = profile.FullName,
+                Email = profile.Email,
+                PhoneNumber = profile.PhoneNumber,
+                PrimaryCenter = profile.PrimaryCenter,
+                FitnessGoals = preferences.FitnessGoals,
+                TrainingInterests = preferences.TrainingInterests,
+                MembershipType = preferences.MembershipType
+            })
+            : await MembershipService.UpdateMemberAsync(profile);
 
         if (updated is null)
             errorMessage = "Profilen kunne ikke gemmes.";
         else
         {
-            member = updated;
+            ApplyMember(updated);
             successMessage = "Profilen er gemt.";
         }
 
@@ -283,7 +299,7 @@
             errorMessage = "Notifikationer kunne ikke gemmes.";
         else
         {
-            member = updated;
+            ApplyMember(updated);
             successMessage = "Notifikationer er gemt.";
         }
 
@@ -361,6 +377,36 @@
     private static string FormatDate(DateTime? date)
     {
         return date is null ? "-" : date.Value.ToLocalTime().ToString("d. MMMM yyyy", new CultureInfo("da-DK"));
+    }
+
+    private void ApplyMember(Member updatedMember)
+    {
+        member = updatedMember;
+        canCreateProfileFromUser = false;
+
+        profile.FullName = updatedMember.FullName;
+        profile.Email = updatedMember.Email;
+        profile.PhoneNumber = updatedMember.PhoneNumber;
+        profile.PrimaryCenter = updatedMember.PrimaryCenter;
+
+        preferences.FitnessGoals = updatedMember.UserPreference?.FitnessGoals ?? [];
+        preferences.TrainingInterests = updatedMember.UserPreference?.TrainingInterests ?? [];
+        preferences.MembershipType = updatedMember.UserPreference?.MembershipType ?? "Premium";
+        preferences.ClassReminders = updatedMember.UserPreference?.ClassReminders ?? true;
+        preferences.LivestreamReminders = updatedMember.UserPreference?.LivestreamReminders ?? true;
+        preferences.BookingUpdates = updatedMember.UserPreference?.BookingUpdates ?? true;
+        preferences.CommunityActivity = updatedMember.UserPreference?.CommunityActivity ?? false;
+        preferences.MembershipAndPaymentMessages = updatedMember.UserPreference?.MembershipAndPaymentMessages ?? false;
+    }
+
+    private void ApplyDefaultPreferences()
+    {
+        preferences.MembershipType = "Premium";
+        preferences.ClassReminders = true;
+        preferences.LivestreamReminders = true;
+        preferences.BookingUpdates = true;
+        preferences.CommunityActivity = false;
+        preferences.MembershipAndPaymentMessages = false;
     }
 
     private enum SettingsTab
