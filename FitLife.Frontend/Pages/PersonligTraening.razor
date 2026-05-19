@@ -312,9 +312,12 @@
         selectedHour = -1;
         if (selectedTrainer is not null && selectedDate.HasValue)
         {
-            bookedHours = await TrainerService.GetBookedHoursAsync(
+            var utcHours = await TrainerService.GetBookedHoursAsync(
                 selectedTrainer.Id,
                 DateOnly.FromDateTime(selectedDate.Value));
+
+            var offset = (int)TimeZoneInfo.Local.GetUtcOffset(selectedDate.Value).TotalHours;
+            bookedHours = utcHours.Select(h => h + offset).ToList();
         }
         else
         {
